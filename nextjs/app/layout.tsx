@@ -2,9 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { NotificationProvider } from "@/components/notification"
 import { cn } from "@/lib/utils"
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -30,15 +29,9 @@ export default function RootLayout({
       )}
     >
       <body>
-        <SidebarProvider>
-          <ThemeProvider>
-            <AppSidebar />
-            <main>
-              <SidebarTrigger size={"lg"} />
-              {children}
-            </main>
-          </ThemeProvider>
-        </SidebarProvider>
+        <ThemeProvider>
+          <NotificationProvider>{children}</NotificationProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

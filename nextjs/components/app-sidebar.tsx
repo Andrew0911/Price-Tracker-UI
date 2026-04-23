@@ -43,10 +43,10 @@ export function AppSidebar() {
               className="group-data-[collapsible=icon]:!h-16 group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!p-0"
             >
               <div className="flex aspect-square size-10 shrink-0 items-center justify-center rounded-lg bg-primary group-data-[collapsible=icon]:!size-10">
-                PT
+                PP
               </div>
               <div className="flex flex-col gap-0 leading-none group-data-[collapsible=icon]:hidden">
-                <span className="text-base">Price Tracker</span>
+                <span className="text-base">Price Pulse</span>
                 <span className="text-sm text-muted-foreground">
                   Shop smarter
                 </span>
@@ -60,7 +60,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-sm font-medium group-data-[collapsible=icon]:hidden">
-            Meniuri
+            Menus
           </SidebarGroupLabel>
           <SidebarMenu>
             {navItems.map((item) => (
