@@ -1,15 +1,50 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { ShoppingBag, TrendingDown, Bell, Tag, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
+import { api } from "@/lib/api"
+import { useNotification } from "@/components/notification"
+import { useErrorHandler } from "@/lib/use-error-handler"
 
 export default function RegisterPage() {
+  const router = useRouter()
+  const { notify } = useNotification()
+  const { handleError } = useErrorHandler()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [passwordConfirmation, setPasswordConfirmation] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setIsLoading(true)
+    try {
+      await api.post("/register", {
+        name,
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+      })
+      notify({
+        type: "success",
+        message:
+          "Account created. Please check your email to verify your account.",
+      })
+      router.push("/login")
+    } catch (err) {
+      handleError(err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -90,7 +125,7 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
               <Label htmlFor="name">Full name</Label>
               <Input
@@ -99,6 +134,8 @@ export default function RegisterPage() {
                 placeholder="John Doe"
                 autoComplete="name"
                 required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
 
@@ -110,6 +147,8 @@ export default function RegisterPage() {
                 placeholder="Email"
                 autoComplete="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
@@ -124,6 +163,8 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   className="pr-10"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
@@ -152,6 +193,8 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   className="pr-10"
                   required
+                  value={passwordConfirmation}
+                  onChange={(e) => setPasswordConfirmation(e.target.value)}
                 />
                 <button
                   type="button"
@@ -169,8 +212,13 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" size="lg">
-              Create account
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={isLoading}
+            >
+              {isLoading ? "Creating account…" : "Create account"}
             </Button>
           </form>
 

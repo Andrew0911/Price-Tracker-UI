@@ -1,3 +1,8 @@
+"use client"
+
+import { useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +30,9 @@ import {
   ChevronRight,
   Heart,
 } from "lucide-react"
+import { api, clearAuthToken } from "@/lib/api"
+import { useNotification } from "@/components/notification"
+import { useUser, clearUserCache } from "@/lib/user-context"
 
 const navItems = [
   { title: "Dashboard", icon: LayoutDashboard, url: "dashboard" },
@@ -32,6 +40,24 @@ const navItems = [
 ]
 
 export function AppSidebar() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const { notify } = useNotification()
+  const { user } = useUser()
+
+  async function handleLogout() {
+    try {
+      await api.post("/logout")
+    } catch {
+      // best-effort — clear locally regardless
+    } finally {
+      clearUserCache()
+      clearAuthToken()
+      notify({ type: "success", message: "Logout successful" })
+      router.push("/login")
+    }
+  }
+
   return (
     <Sidebar collapsible="icon">
       {/* 1. PARTEA DE SUS: Icon și Numele Aplicației */}
@@ -68,14 +94,15 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   size="lg"
-                  className="text-base transition-colors group-data-[collapsible=icon]:!h-14 group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!p-0 hover:text-chart-3"
+                  isActive={pathname === `/${item.url}`}
+                  className="text-base transition-colors group-data-[collapsible=icon]:!h-14 group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!p-0 hover:bg-transparent hover:text-chart-3 data-[active=true]:bg-sidebar-accent data-[active=true]:text-chart-3"
                 >
-                  <a href={item.url}>
+                  <Link href={`/${item.url}`}>
                     <item.icon className="!size-5 shrink-0 group-data-[collapsible=icon]:!size-6" />
                     <span className="group-data-[collapsible=icon]:hidden">
                       {item.title}
                     </span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -97,9 +124,9 @@ export function AppSidebar() {
                     <User2 className="size-8 group-data-[collapsible=icon]:!size-6" />
                   </div>
                   <div className="flex flex-col gap-0 text-left leading-none group-data-[collapsible=icon]:hidden">
-                    <span className="text-base">Nume Utilizator</span>
+                    <span className="text-base">{user?.name ?? "…"}</span>
                     <span className="text-sm text-muted-foreground">
-                      user@exemplu.ro
+                      {user?.email ?? "…"}
                     </span>
                   </div>
                   <ChevronRight className="ml-auto size-5 group-data-[collapsible=icon]:hidden" />
@@ -112,21 +139,30 @@ export function AppSidebar() {
                 sideOffset={15}
                 className="w-56 rounded-lg text-base"
               >
-                <DropdownMenuItem className="cursor-pointer py-2 text-base">
+                <DropdownMenuItem
+                  className="cursor-pointer py-2 text-base"
+                  onClick={() => router.push("/profile")}
+                >
                   <BadgeCheck className="size-4" />
-                  <span>Profil</span>
+                  <span>Profile</span>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem className="cursor-pointer py-2 text-base">
+                <DropdownMenuItem
+                  className="cursor-pointer py-2 text-base"
+                  onClick={() => router.push("/account-settings")}
+                >
                   <Settings className="size-4" />
-                  <span>Setări cont</span>
+                  <span>Account Settings</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem className="cursor-pointer py-2 text-base text-red-600 focus:text-red-600">
+                <DropdownMenuItem
+                  className="cursor-pointer py-2 text-base text-red-600 focus:text-red-600"
+                  onClick={handleLogout}
+                >
                   <LogOut className="size-4" />
-                  <span>Deconectare</span>
+                  <span>Logout</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

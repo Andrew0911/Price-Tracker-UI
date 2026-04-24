@@ -18,8 +18,7 @@ export type NotificationType = "success" | "error" | "warning" | "info"
 
 export interface NotificationOptions {
   type: NotificationType
-  title: string
-  message?: string
+  message: string
   duration?: number
 }
 
@@ -59,7 +58,7 @@ const variantConfig: Record<
 > = {
   success: {
     icon: CheckCircle2,
-    wrapperClass: "bg-white text-gray-900 dark:bg-zinc-900 dark:text-zinc-100",
+    wrapperClass: "bg-white text-muted-foreground dark:bg-zinc-900",
     iconBgClass: "bg-emerald-100 dark:bg-emerald-900/60",
     iconClass: "text-emerald-600 dark:text-emerald-400",
     barClass: "bg-emerald-500",
@@ -67,7 +66,7 @@ const variantConfig: Record<
   },
   error: {
     icon: XCircle,
-    wrapperClass: "bg-white text-gray-900 dark:bg-zinc-900 dark:text-zinc-100",
+    wrapperClass: "bg-white text-muted-foreground dark:bg-zinc-900",
     iconBgClass: "bg-red-100 dark:bg-red-900/60",
     iconClass: "text-red-600 dark:text-red-400",
     barClass: "bg-red-500",
@@ -75,7 +74,7 @@ const variantConfig: Record<
   },
   warning: {
     icon: TriangleAlert,
-    wrapperClass: "bg-white text-gray-900 dark:bg-zinc-900 dark:text-zinc-100",
+    wrapperClass: "bg-white text-muted-foreground dark:bg-zinc-900",
     iconBgClass: "bg-amber-100 dark:bg-amber-900/60",
     iconClass: "text-amber-600 dark:text-amber-400",
     barClass: "bg-amber-400",
@@ -83,7 +82,7 @@ const variantConfig: Record<
   },
   info: {
     icon: Info,
-    wrapperClass: "bg-white text-gray-900 dark:bg-zinc-900 dark:text-zinc-100",
+    wrapperClass: "bg-white text-muted-foreground dark:bg-zinc-900",
     iconBgClass: "bg-blue-100 dark:bg-blue-900/60",
     iconClass: "text-blue-600 dark:text-blue-400",
     barClass: "bg-blue-500",
@@ -207,24 +206,19 @@ function Toast({
         wrapperClass
       )}
     >
-      <div className="flex min-w-0 flex-1 items-start gap-3 px-4 py-4">
+      <div className="flex min-w-0 flex-1 items-center gap-3 px-4 py-4">
         {/* Icon with colored background */}
         <div
           className={cn(
-            "flex size-9 shrink-0 items-center justify-center rounded-xl",
+            "flex size-8 shrink-0 items-center justify-center rounded-lg",
             iconBgClass
           )}
         >
-          <Icon className={cn("size-5", iconClass)} />
+          <Icon className={cn("size-4", iconClass)} />
         </div>
 
-        <div className="min-w-0 flex-1 space-y-0.5 pt-0.5">
-          <p className="text-sm leading-tight font-bold">{item.title}</p>
-          {item.message && (
-            <p className="text-sm leading-snug text-muted-foreground">
-              {item.message}
-            </p>
-          )}
+        <div className="min-w-0 flex-1">
+          <p className="text-sm leading-snug">{item.message}</p>
         </div>
 
         <button

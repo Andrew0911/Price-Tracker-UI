@@ -1,15 +1,50 @@
 "use client"
 
 import { Suspense, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { ShoppingBag, TrendingDown, Bell, Tag, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { VerifyEmailAlert } from "./verify-email-alert"
+import { api, setAuthToken } from "@/lib/api"
+import { useErrorHandler } from "@/lib/use-error-handler"
+import { useNotification } from "@/components/notification"
+
+type LoginData = {
+  token: string
+  tokenType: string
+  expiresAt: string
+}
 
 export default function LoginPage() {
+  const router = useRouter()
+  const { handleError } = useErrorHandler()
   const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const { notify } = useNotification()
+
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setIsLoading(true)
+    try {
+      const res = await api.post<LoginData>("/login", { email, password })
+      setAuthToken(res.data!.token)
+      notify({
+        type: "success",
+        message: "Login successful",
+      })
+      router.push("/dashboard")
+    } catch (err) {
+      handleError(err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <>
       <Suspense>
@@ -94,7 +129,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <form className="space-y-5">
+            <form className="space-y-5" onSubmit={handleSubmit}>
               <div className="space-y-1.5">
                 <Label htmlFor="email">Email address</Label>
                 <Input
@@ -103,6 +138,8 @@ export default function LoginPage() {
                   placeholder="Email"
                   autoComplete="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
@@ -125,6 +162,8 @@ export default function LoginPage() {
                     autoComplete="current-password"
                     className="pr-10"
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                   <button
                     type="button"
@@ -144,8 +183,13 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" size="lg">
-                Sign in
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in…" : "Sign in"}
               </Button>
             </form>
 

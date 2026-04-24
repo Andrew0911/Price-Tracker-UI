@@ -16,22 +16,21 @@ export function VerifyEmailAlert() {
     if (verified === "1") {
       notify({
         type: "success",
-        title: "Email verified!",
-        message: "Your account is now active. Sign in to get started.",
+        message:
+          "Email verified! Your account is now active. Sign in to get started.",
       })
     } else if (verified === "0") {
       if (error === "token_expired") {
         notify({
           type: "warning",
-          title: "Verification link expired",
           message:
-            "This link is no longer valid. Please request a new verification email.",
+            "Verification link expired. Please request a new verification email.",
         })
       } else if (error === "invalid_token") {
         notify({
           type: "error",
-          title: "Invalid verification link",
-          message: "This link is invalid or has already been used.",
+          message:
+            "Invalid verification link. This link is invalid or has already been used.",
         })
       }
     }
