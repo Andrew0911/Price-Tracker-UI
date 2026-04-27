@@ -123,9 +123,11 @@ export function AppSidebar() {
                   <div className="flex aspect-square size-10 shrink-0 items-center justify-center rounded-lg bg-muted group-data-[collapsible=icon]:!size-12">
                     <User2 className="size-8 group-data-[collapsible=icon]:!size-6" />
                   </div>
-                  <div className="flex flex-col gap-0 text-left leading-none group-data-[collapsible=icon]:hidden">
-                    <span className="text-base">{user?.name ?? "…"}</span>
-                    <span className="text-sm text-muted-foreground">
+                  <div className="flex min-w-0 flex-col gap-0 text-left leading-none group-data-[collapsible=icon]:hidden">
+                    <span className="truncate text-base">
+                      {user?.name ?? "…"}
+                    </span>
+                    <span className="truncate text-sm text-muted-foreground">
                       {user?.email ?? "…"}
                     </span>
                   </div>
