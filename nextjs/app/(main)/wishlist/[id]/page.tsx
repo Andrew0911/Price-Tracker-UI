@@ -12,6 +12,8 @@ import {
   Loader2,
   Store,
   Clock,
+  Trash,
+  X,
 } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
 import {
@@ -36,7 +38,6 @@ type PriceHistory = {
 type PriceAlert = {
   id: number
   target_price: string
-  is_active: boolean
 }
 
 type Product = {
@@ -94,6 +95,8 @@ export default function ProductDetail() {
   const [alertPrice, setAlertPrice] = useState("")
   const [savingAlert, setSavingAlert] = useState(false)
   const [deletingAlert, setDeletingAlert] = useState(false)
+  const [deletingProduct, setDeletingProduct] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
   useEffect(() => {
     api
@@ -147,6 +150,21 @@ export default function ProductDetail() {
       handleError(err)
     } finally {
       setDeletingAlert(false)
+    }
+  }
+
+  async function performDeleteProduct() {
+    if (!product) return
+    setDeletingProduct(true)
+    try {
+      await api.delete(`/products/${product.id}`)
+      notify({ type: "success", message: "Product deleted" })
+      router.push("/wishlist")
+    } catch (err) {
+      handleError(err)
+    } finally {
+      setDeletingProduct(false)
+      setDeleteModalOpen(false)
     }
   }
 
@@ -243,7 +261,7 @@ export default function ProductDetail() {
                   </span>
                 )}
 
-                <div className="flex flex-wrap gap-8">
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
                   {product.store && (
                     <div className="flex flex-col gap-1">
                       <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
@@ -276,19 +294,36 @@ export default function ProductDetail() {
                   </p>
                 )}
 
-                <Link
-                  href={product.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <div className="flex w-full justify-end gap-2">
+                  <Link
+                    href={product.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className=""
+                  >
+                    <Button
+                      variant="outline"
+                      className="gap-2 hover:text-chart-3"
+                    >
+                      <ExternalLink className="size-4" />
+                      View on {product.store ?? "store"}
+                    </Button>
+                  </Link>
+
                   <Button
                     variant="outline"
-                    className="w-full gap-2 hover:text-chart-3"
+                    className="shrink-0 gap-2 text-red-600 hover:bg-destructive/10"
+                    onClick={() => setDeleteModalOpen(true)}
+                    disabled={deletingProduct}
                   >
-                    <ExternalLink className="size-4" />
-                    View on {product.store ?? "store"}
+                    {deletingProduct ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <Trash className="size-4" />
+                    )}
+                    <span className="text-sm">Delete</span>
                   </Button>
-                </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -384,7 +419,7 @@ export default function ProductDetail() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 gap-1 text-xs text-muted-foreground hover:text-destructive"
+                      className="h-7 gap-1 text-xs text-red-600 hover:bg-red-600 hover:text-white"
                       onClick={handleDeleteAlert}
                       disabled={deletingAlert}
                     >
@@ -435,6 +470,53 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* Delete confirmation modal */}
+      {deleteModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 pt-[20vh] backdrop-blur-sm fade-in-0"
+          onClick={() => setDeleteModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md animate-in rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-top-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Delete product</h2>
+              <button
+                onClick={() => setDeleteModalOpen(false)}
+                disabled={deletingProduct}
+                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-red-600 disabled:opacity-50"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to delete this product? This action cannot
+              be undone.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteModalOpen(false)}
+                disabled={deletingProduct}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={performDeleteProduct}
+                disabled={deletingProduct}
+                className="gap-2 bg-red-600 text-white hover:bg-red-700"
+              >
+                {deletingProduct && <Loader2 className="size-4 animate-spin" />}
+                {deletingProduct ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
