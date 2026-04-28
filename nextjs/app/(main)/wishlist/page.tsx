@@ -6,17 +6,27 @@ import Link from "next/link"
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   ShoppingCart,
   Plus,
   X,
   Loader2,
   ArrowRight,
+  SlidersHorizontal,
+  CalendarIcon,
 } from "lucide-react"
 import { api } from "@/lib/api"
+import { Store, STORES } from "@/lib/enums"
 import { useErrorHandler } from "@/lib/use-error-handler"
 import { useNotification } from "@/components/notification"
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Skeleton } from "@/components/ui/skeleton"
 
 type Product = {
@@ -57,6 +67,47 @@ export default function Wishlist() {
   const [adding, setAdding] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [addedAfterDraft, setAddedAfterDraft] = useState<Date | undefined>(
+    undefined
+  )
+  const [storeDraft, setStoreDraft] = useState<Store | "">("")
+  const [storePopoverOpen, setStorePopoverOpen] = useState(false)
+  const [activeAddedAfter, setActiveAddedAfter] = useState("")
+  const [activeStore, setActiveStore] = useState<Store | "">("")
+
+  function openFilter() {
+    setAddedAfterDraft(
+      activeAddedAfter ? new Date(activeAddedAfter) : undefined
+    )
+    setStoreDraft(activeStore)
+    setFilterOpen(true)
+  }
+
+  function closeFilter() {
+    setFilterOpen(false)
+  }
+
+  function applyFilter() {
+    setActiveAddedAfter(
+      addedAfterDraft ? addedAfterDraft.toISOString().split("T")[0] : ""
+    )
+    setActiveStore(storeDraft)
+    setPage(1)
+    setFilterOpen(false)
+  }
+
+  function clearFilter() {
+    setAddedAfterDraft(undefined)
+    setStoreDraft("")
+    setActiveAddedAfter("")
+    setActiveStore("")
+    setPage(1)
+    setFilterOpen(false)
+  }
+
+  const activeFiltersCount = (activeAddedAfter ? 1 : 0) + (activeStore ? 1 : 0)
+
   function openModal() {
     setUrl("")
     setModalOpen(true)
@@ -79,7 +130,9 @@ export default function Wishlist() {
       // re-trigger fetch
       setLoading(true)
       api
-        .get<never>(`/products?page=1&perPage=${perPage}`)
+        .get<never>(
+          `/products?page=1&perPage=${perPage}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}`
+        )
         .then((res) => {
           const r = res as unknown as ProductsResponse
           setProducts(r.data ?? [])
@@ -98,7 +151,9 @@ export default function Wishlist() {
   useEffect(() => {
     setLoading(true)
     api
-      .get<never>(`/products?page=${page}&perPage=${perPage}`)
+      .get<never>(
+        `/products?page=${page}&perPage=${perPage}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}`
+      )
       .then((res) => {
         const r = res as unknown as ProductsResponse
         setProducts(r.data ?? [])
@@ -107,7 +162,7 @@ export default function Wishlist() {
       })
       .catch(handleError)
       .finally(() => setLoading(false))
-  }, [page, perPage])
+  }, [page, perPage, activeAddedAfter, activeStore])
 
   function handlePerPageChange(value: number) {
     setPerPage(value)
@@ -141,13 +196,28 @@ export default function Wishlist() {
             </p>
           )}
         </div>{" "}
-        <Button
-          onClick={openModal}
-          className="gap-2 bg-primary hover:bg-primary/80"
-        >
-          <Plus className="size-4" />
-          Add product
-        </Button>{" "}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={openFilter}
+            className={`gap-2${activeFiltersCount > 0 ? "border-primary text-primary" : ""}`}
+          >
+            <SlidersHorizontal className="size-4" />
+            Filter
+            {activeFiltersCount > 0 && (
+              <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                {activeFiltersCount}
+              </span>
+            )}
+          </Button>
+          <Button
+            onClick={openModal}
+            className="gap-2 bg-primary hover:bg-primary/80"
+          >
+            <Plus className="size-4" />
+            Add product
+          </Button>
+        </div>
       </div>
 
       {/* Grid */}
@@ -314,14 +384,153 @@ export default function Wishlist() {
         </div>
       )}
 
+      {/* Filter Modal */}
+      {filterOpen && (
+        <div
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 pt-[20vh] backdrop-blur-sm fade-in-0"
+          onClick={closeFilter}
+        >
+          <div
+            className="w-full max-w-sm animate-in rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-top-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Filter products</h2>
+              <button
+                onClick={closeFilter}
+                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-red-600"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Store</label>
+                  {storeDraft && (
+                    <button
+                      onClick={() => setStoreDraft("")}
+                      className="flex items-center gap-1 text-xs text-red-500 hover:text-white"
+                    >
+                      <X className="size-3" />
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <Popover
+                  open={storePopoverOpen}
+                  onOpenChange={setStorePopoverOpen}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between gap-2 font-normal"
+                    >
+                      <span
+                        className={storeDraft ? "" : "text-muted-foreground"}
+                      >
+                        {storeDraft
+                          ? storeDraft.charAt(0).toUpperCase() +
+                            storeDraft.slice(1)
+                          : "All stores"}
+                      </span>
+                      <ChevronDown className="size-4 text-muted-foreground" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-[--radix-popover-trigger-width] p-1.5"
+                    align="start"
+                  >
+                    {(
+                      [
+                        ["", "All stores"],
+                        ...STORES.map((s) => [
+                          s,
+                          s.charAt(0).toUpperCase() + s.slice(1),
+                        ]),
+                      ] as [Store | "", string][]
+                    ).map(([value, label]) => (
+                      <button
+                        key={value || "_all"}
+                        onClick={() => {
+                          setStoreDraft(value)
+                          setStorePopoverOpen(false)
+                        }}
+                        className={`flex w-full items-center rounded-2xl px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground ${storeDraft === value ? "text-chart-3" : ""}`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Added after</label>
+                  {addedAfterDraft && (
+                    <button
+                      onClick={() => setAddedAfterDraft(undefined)}
+                      className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600"
+                    >
+                      <X className="size-3" />
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2 font-normal"
+                    >
+                      <CalendarIcon className="size-4 text-muted-foreground" />
+                      {addedAfterDraft ? (
+                        addedAfterDraft.toLocaleDateString("ro-RO", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })
+                      ) : (
+                        <span className="text-muted-foreground">
+                          Pick a date
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={addedAfterDraft}
+                      onSelect={setAddedAfterDraft}
+                      disabled={(date: Date) => date > new Date()}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={clearFilter}>
+                  Clear
+                </Button>
+                <Button onClick={applyFilter} className="gap-2">
+                  Apply
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add Product Modal */}
       {modalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 pt-[20vh] backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 pt-[20vh] backdrop-blur-sm fade-in-0"
           onClick={closeModal}
         >
           <div
-            className="w-full max-w-lg rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10"
+            className="w-full max-w-lg animate-in rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-top-2"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5 flex items-center justify-between">
