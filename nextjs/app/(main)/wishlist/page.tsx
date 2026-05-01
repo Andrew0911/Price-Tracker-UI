@@ -14,6 +14,7 @@ import {
   ArrowRight,
   SlidersHorizontal,
   CalendarIcon,
+  Bell,
 } from "lucide-react"
 import { api } from "@/lib/api"
 import { Store, STORES } from "@/lib/enums"
@@ -39,6 +40,7 @@ type Product = {
   currency: string
   last_checked_at: string | null
   scrape_error: string | null
+  price_alerts: { id: number }[]
 }
 
 type ProductsResponse = {
@@ -72,15 +74,18 @@ export default function Wishlist() {
     undefined
   )
   const [storeDraft, setStoreDraft] = useState<Store | "">("")
+  const [statusDraft, setStatusDraft] = useState<1 | 0 | null>(null)
   const [storePopoverOpen, setStorePopoverOpen] = useState(false)
   const [activeAddedAfter, setActiveAddedAfter] = useState("")
   const [activeStore, setActiveStore] = useState<Store | "">("")
+  const [activeStatus, setActiveStatus] = useState<1 | 0 | null>(null)
 
   function openFilter() {
     setAddedAfterDraft(
       activeAddedAfter ? new Date(activeAddedAfter) : undefined
     )
     setStoreDraft(activeStore)
+    setStatusDraft(activeStatus)
     setFilterOpen(true)
   }
 
@@ -93,6 +98,7 @@ export default function Wishlist() {
       addedAfterDraft ? addedAfterDraft.toISOString().split("T")[0] : ""
     )
     setActiveStore(storeDraft)
+    setActiveStatus(statusDraft)
     setPage(1)
     setFilterOpen(false)
   }
@@ -100,13 +106,18 @@ export default function Wishlist() {
   function clearFilter() {
     setAddedAfterDraft(undefined)
     setStoreDraft("")
+    setStatusDraft(null)
     setActiveAddedAfter("")
     setActiveStore("")
+    setActiveStatus(null)
     setPage(1)
     setFilterOpen(false)
   }
 
-  const activeFiltersCount = (activeAddedAfter ? 1 : 0) + (activeStore ? 1 : 0)
+  const activeFiltersCount =
+    (activeAddedAfter ? 1 : 0) +
+    (activeStore ? 1 : 0) +
+    (activeStatus !== null ? 1 : 0)
 
   function openModal() {
     setUrl("")
@@ -131,7 +142,7 @@ export default function Wishlist() {
       setLoading(true)
       api
         .get<never>(
-          `/products?page=1&perPage=${perPage}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}`
+          `/products?page=1&perPage=${perPage}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}${activeStatus !== null ? `&status=${activeStatus}` : ""}`
         )
         .then((res) => {
           const r = res as unknown as ProductsResponse
@@ -152,7 +163,7 @@ export default function Wishlist() {
     setLoading(true)
     api
       .get<never>(
-        `/products?page=${page}&perPage=${perPage}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}`
+        `/products?page=${page}&perPage=${perPage}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}${activeStatus !== null ? `&status=${activeStatus}` : ""}`
       )
       .then((res) => {
         const r = res as unknown as ProductsResponse
@@ -162,7 +173,7 @@ export default function Wishlist() {
       })
       .catch(handleError)
       .finally(() => setLoading(false))
-  }, [page, perPage, activeAddedAfter, activeStore])
+  }, [page, perPage, activeAddedAfter, activeStore, activeStatus])
 
   function handlePerPageChange(value: number) {
     setPerPage(value)
@@ -248,11 +259,12 @@ export default function Wishlist() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product) => (
+            {products.map((product, i) => (
               <Link
                 key={product.id}
                 href={`/wishlist/${product.id}`}
-                className="group flex flex-col overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5 transition-shadow hover:shadow-md"
+                className="group relative flex animate-in flex-col overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5 transition-shadow duration-300 fill-mode-both fade-in slide-in-from-bottom-3 hover:shadow-md"
+                style={{ animationDelay: `${i * 50}ms` }}
               >
                 {/* Image */}
                 <div className="relative h-52 w-full shrink-0 overflow-hidden bg-white">
@@ -273,6 +285,18 @@ export default function Wishlist() {
                     <span className="absolute top-3 left-3 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium tracking-wide text-white uppercase backdrop-blur-sm">
                       {product.store}
                     </span>
+                  )}
+                  {product.price_alerts?.length > 0 && (
+                    <span className="absolute top-3 right-3 flex size-7 items-center justify-center rounded-full bg-primary/90 text-primary-foreground shadow backdrop-blur-sm">
+                      <Bell className="size-3.5" />
+                    </span>
+                  )}
+                  {product.scrape_error && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-[3px]">
+                      <span className="text-sm font-semibold tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                        Product unavailable
+                      </span>
+                    </div>
                   )}
                 </div>
 
@@ -467,8 +491,31 @@ export default function Wishlist() {
               </div>
 
               <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium">Status</label>
+                <div className="flex gap-2">
+                  {([null, 1, 0] as const).map((val) => (
+                    <button
+                      key={val ?? "_all"}
+                      onClick={() => setStatusDraft(val)}
+                      className={`flex-1 rounded-2xl px-3 py-2 text-sm font-medium transition-colors ${
+                        statusDraft === val
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {val === null
+                        ? "All"
+                        : val === 1
+                          ? "Available"
+                          : "Unavailable"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Added after</label>
+                  <label className="text-sm font-medium">Added after</label>{" "}
                   {addedAfterDraft && (
                     <button
                       onClick={() => setAddedAfterDraft(undefined)}

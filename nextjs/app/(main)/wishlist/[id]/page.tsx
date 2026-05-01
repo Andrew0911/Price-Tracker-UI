@@ -15,7 +15,16 @@ import {
   Trash,
   X,
 } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ReferenceLine,
+  ReferenceDot,
+} from "recharts"
 import {
   ChartContainer,
   ChartTooltipContent,
@@ -66,7 +75,7 @@ const chartConfig: ChartConfig = {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("ro-RO", {
+  return new Date(iso).toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -74,7 +83,7 @@ function formatDate(iso: string) {
 }
 
 function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString("ro-RO", {
+  return new Date(iso).toLocaleString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -174,6 +183,17 @@ export default function ProductDetail() {
       price: parseFloat(h.price),
     })) ?? []
 
+  // Add current price as the last point if it differs from the last history entry
+  if (product?.current_price) {
+    const currentPrice = parseFloat(product.current_price)
+    const last = chartData[chartData.length - 1]
+    if (!last || last.price !== currentPrice) {
+      chartData.push({ date: "Now", price: currentPrice })
+    }
+  }
+
+  const currentDot = chartData[chartData.length - 1] ?? null
+
   const activeAlert = product?.price_alerts?.[0] ?? null
 
   if (loading) {
@@ -218,7 +238,7 @@ export default function ProductDetail() {
       <div className="min-h-0 flex-1 px-6 pb-6">
         <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
           {/* LEFT — Product details card */}
-          <div className="flex flex-col overflow-y-auto rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5">
+          <div className="flex animate-in flex-col overflow-y-auto rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">
             {/* Image */}
             <div className="relative h-80 w-full shrink-0 overflow-hidden rounded-t-3xl bg-white">
               {product.image_url ? (
@@ -232,6 +252,13 @@ export default function ProductDetail() {
               ) : (
                 <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                   No image
+                </div>
+              )}
+              {product.scrape_error && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[3px]">
+                  <span className="text-sm font-semibold tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                    Product unavailable
+                  </span>
                 </div>
               )}
             </div>
@@ -288,12 +315,6 @@ export default function ProductDetail() {
               </div>
 
               <div className="flex flex-col gap-3">
-                {product.scrape_error && (
-                  <p className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                    {product.scrape_error}
-                  </p>
-                )}
-
                 <div className="flex w-full justify-end gap-2">
                   <Link
                     href={product.url}
@@ -329,69 +350,134 @@ export default function ProductDetail() {
           </div>
 
           {/* RIGHT — Chart + Alerts */}
-          <div className="flex flex-col gap-6">
+          <div
+            className="flex animate-in flex-col gap-6 duration-300 fill-mode-both fade-in slide-in-from-bottom-3"
+            style={{ animationDelay: "75ms" }}
+          >
             {/* Price history chart — grows to fill */}
-            <div className="flex flex-1 flex-col gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5">
-              <div>
-                <h3 className="font-semibold">Price history</h3>
-                <p className="text-xs text-muted-foreground">
-                  Last {chartData.length} data points
-                </p>
+            <div className="flex min-h-0 flex-1 flex-col gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5">
+              <div className="flex shrink-0 items-start justify-between">
+                <div>
+                  <h3 className="font-semibold">Price history</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Last {chartData.length} data points
+                  </p>
+                </div>
+                {chartData.length >= 1 && (
+                  <div className="flex gap-2 text-xs">
+                    <span className="rounded-lg bg-muted px-2.5 py-1 font-medium">
+                      Min:{" "}
+                      <span className="text-chart-3">
+                        {Math.min(...chartData.map((d) => d.price)).toFixed(2)}
+                      </span>
+                    </span>
+                    <span className="rounded-lg bg-muted px-2.5 py-1 font-medium">
+                      Max:{" "}
+                      <span className="text-destructive/80">
+                        {Math.max(...chartData.map((d) => d.price)).toFixed(2)}
+                      </span>
+                    </span>
+                  </div>
+                )}
               </div>
 
               {chartData.length < 2 ? (
-                <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
+                <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
                   Not enough data yet
                 </div>
               ) : (
-                <ChartContainer config={chartConfig} className="h-56 w-full">
-                  <AreaChart data={chartData}>
-                    <defs>
-                      <linearGradient
-                        id="priceGrad"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="var(--color-chart-3)"
-                          stopOpacity={0.3}
+                <div className="min-h-0 flex-1">
+                  <ChartContainer
+                    config={chartConfig}
+                    className="h-full w-full"
+                  >
+                    <AreaChart
+                      data={chartData}
+                      margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient
+                          id="priceGrad"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0%"
+                            stopColor="var(--color-chart-3)"
+                            stopOpacity={0.35}
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="var(--color-chart-3)"
+                            stopOpacity={0.02}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid
+                        vertical={false}
+                        stroke="currentColor"
+                        strokeOpacity={0.06}
+                      />
+                      <XAxis
+                        dataKey="date"
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fontSize: 11 }}
+                        interval="preserveStartEnd"
+                      />
+                      <YAxis
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fontSize: 11 }}
+                        width={60}
+                        domain={[
+                          (min: number) => Math.floor(min * 0.97),
+                          (max: number) => Math.ceil(max * 1.03),
+                        ]}
+                      />
+                      <Tooltip content={<ChartTooltipContent />} />
+                      {activeAlert && (
+                        <ReferenceLine
+                          y={parseFloat(activeAlert.target_price)}
+                          stroke="var(--color-chart-3)"
+                          strokeDasharray="5 4"
+                          strokeOpacity={0.55}
+                          label={{
+                            value: `Alert · ${activeAlert.target_price}`,
+                            fontSize: 10,
+                            fill: "var(--color-chart-3)",
+                            position: "insideTopRight",
+                          }}
                         />
-                        <stop
-                          offset="95%"
-                          stopColor="var(--color-chart-3)"
-                          stopOpacity={0}
+                      )}
+                      <Area
+                        type="monotone"
+                        dataKey="price"
+                        stroke="var(--color-chart-3)"
+                        strokeWidth={2.5}
+                        fill="url(#priceGrad)"
+                        dot={false}
+                        activeDot={{
+                          r: 5,
+                          strokeWidth: 0,
+                          fill: "var(--color-chart-3)",
+                        }}
+                      />
+                      {currentDot && (
+                        <ReferenceDot
+                          x={currentDot.date}
+                          y={currentDot.price}
+                          r={5}
+                          fill="var(--color-chart-3)"
+                          stroke="var(--background)"
+                          strokeWidth={2}
                         />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="date"
-                      tickLine={false}
-                      axisLine={false}
-                      tick={{ fontSize: 11 }}
-                      interval="preserveStartEnd"
-                    />
-                    <YAxis
-                      tickLine={false}
-                      axisLine={false}
-                      tick={{ fontSize: 11 }}
-                      width={55}
-                    />
-                    <Tooltip content={<ChartTooltipContent />} />
-                    <Area
-                      type="monotone"
-                      dataKey="price"
-                      stroke="var(--color-chart-3)"
-                      strokeWidth={2}
-                      fill="url(#priceGrad)"
-                      dot={false}
-                      activeDot={{ r: 4 }}
-                    />
-                  </AreaChart>
-                </ChartContainer>
+                      )}
+                    </AreaChart>
+                  </ChartContainer>
+                </div>
               )}
             </div>
 
@@ -455,7 +541,9 @@ export default function ProductDetail() {
                 />
                 <Button
                   onClick={handleSaveAlert}
-                  disabled={savingAlert || !alertPrice}
+                  disabled={
+                    savingAlert || !alertPrice || !!product.scrape_error
+                  }
                   className="shrink-0 gap-2"
                 >
                   {savingAlert ? (

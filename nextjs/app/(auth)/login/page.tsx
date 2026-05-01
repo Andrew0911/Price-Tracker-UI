@@ -110,7 +110,7 @@ export default function LoginPage() {
         </div>
 
         {/* Right form panel */}
-        <div className="flex w-full flex-col items-center justify-center bg-background px-6 py-12 lg:w-1/2">
+        <div className="flex w-full animate-in flex-col items-center justify-center bg-background px-6 py-12 duration-500 fade-in slide-in-from-bottom-4 lg:w-1/2">
           {/* Mobile logo */}
           <div className="mb-8 flex items-center gap-2 lg:hidden">
             <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
