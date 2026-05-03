@@ -1,7 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ShoppingCart, TrendingDown, TrendingUp, Bell } from "lucide-react"
+import {
+  ShoppingCart,
+  TrendingDown,
+  TrendingUp,
+  Bell,
+  LayoutDashboard,
+} from "lucide-react"
 import { api } from "@/lib/api"
 import { useErrorHandler } from "@/lib/use-error-handler"
 import { useUser } from "@/lib/user-context"
@@ -67,17 +73,26 @@ export default function Dashboard() {
   }, [])
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto px-6 py-6">
+    <div className="flex h-full flex-col overflow-y-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Here's a summary of your tracked products.
-        </p>
+      <div className="relative mb-3 shrink-0 overflow-hidden px-6 pt-6 pb-5">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/3 to-transparent" />
+        <div className="pointer-events-none absolute -top-10 -right-10 size-48 rounded-full bg-primary/8 blur-3xl" />
+        <div className="relative">
+          <div className="mb-1 flex items-center gap-2.5">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/25">
+              <LayoutDashboard className="size-5 text-primary" />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          </div>
+          <p className="pl-0.5 text-sm text-muted-foreground">
+            Here&apos;s a summary of your tracked products.
+          </p>
+        </div>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 px-6 pb-6 sm:grid-cols-2 xl:grid-cols-4">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
               <div

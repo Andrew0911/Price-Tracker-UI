@@ -67,10 +67,10 @@ const variantConfig: Record<
   error: {
     icon: XCircle,
     wrapperClass: "bg-white text-muted-foreground dark:bg-zinc-900",
-    iconBgClass: "bg-red-100 dark:bg-red-900/60",
-    iconClass: "text-red-600 dark:text-red-400",
-    barClass: "bg-red-500",
-    progressClass: "bg-red-400/40",
+    iconBgClass: "bg-destructive/10",
+    iconClass: "text-destructive",
+    barClass: "bg-destructive",
+    progressClass: "bg-destructive/40",
   },
   warning: {
     icon: TriangleAlert,

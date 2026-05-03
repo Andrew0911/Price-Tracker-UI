@@ -333,7 +333,7 @@ export default function ProductDetail() {
 
                   <Button
                     variant="outline"
-                    className="shrink-0 gap-2 text-red-600 hover:bg-destructive/10"
+                    className="shrink-0 gap-2 text-destructive hover:bg-destructive/10"
                     onClick={() => setDeleteModalOpen(true)}
                     disabled={deletingProduct}
                   >
@@ -505,7 +505,7 @@ export default function ProductDetail() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 gap-1 text-xs text-red-600 hover:bg-red-600 hover:text-white"
+                      className="hover:text-destructive-foreground h-7 gap-1 text-xs text-destructive hover:bg-destructive"
                       onClick={handleDeleteAlert}
                       disabled={deletingAlert}
                     >
@@ -574,7 +574,7 @@ export default function ProductDetail() {
               <button
                 onClick={() => setDeleteModalOpen(false)}
                 disabled={deletingProduct}
-                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-red-600 disabled:opacity-50"
+                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive disabled:opacity-50"
               >
                 <X className="size-4" />
               </button>
@@ -596,7 +596,7 @@ export default function ProductDetail() {
               <Button
                 onClick={performDeleteProduct}
                 disabled={deletingProduct}
-                className="gap-2 bg-red-600 text-white hover:bg-red-700"
+                className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
               >
                 {deletingProduct && <Loader2 className="size-4 animate-spin" />}
                 {deletingProduct ? "Deleting..." : "Delete"}

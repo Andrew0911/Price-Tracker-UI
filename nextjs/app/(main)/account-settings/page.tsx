@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Loader2, TriangleAlert } from "lucide-react"
+import { Loader2, TriangleAlert, Settings } from "lucide-react"
 import { api, clearAuthToken } from "@/lib/api"
 import { clearUserCache, useUser } from "@/lib/user-context"
 import { useNotification } from "@/components/notification"
@@ -44,17 +44,26 @@ export default function AccountSettingsPage() {
   }
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto px-6 py-6">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Account settings
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage your account preferences.
-        </p>
+    <div className="flex h-full flex-col overflow-y-auto">
+      <div className="relative mb-3 shrink-0 overflow-hidden px-6 pt-6 pb-5">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/3 to-transparent" />
+        <div className="pointer-events-none absolute -top-10 -right-10 size-48 rounded-full bg-primary/8 blur-3xl" />
+        <div className="relative">
+          <div className="mb-1 flex items-center gap-2.5">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/25">
+              <Settings className="size-5 text-primary" />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Account settings
+            </h1>
+          </div>
+          <p className="pl-0.5 text-sm text-muted-foreground">
+            Manage your account preferences.
+          </p>
+        </div>
       </div>
 
-      <div className="mx-auto w-full max-w-xl">
+      <div className="mx-auto w-full max-w-xl px-6 pb-6">
         <div className="flex w-full flex-col gap-6">
           {/* Account info (read-only for now) */}
           <div className="animate-in rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">

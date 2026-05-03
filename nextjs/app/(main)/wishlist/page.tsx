@@ -15,6 +15,7 @@ import {
   SlidersHorizontal,
   CalendarIcon,
   Bell,
+  Heart,
 } from "lucide-react"
 import { api } from "@/lib/api"
 import { Store, STORES } from "@/lib/enums"
@@ -198,36 +199,45 @@ export default function Wishlist() {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between px-6 pt-6 pb-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Wishlist</h1>
-          {!loading && (
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {total} {total === 1 ? "product" : "products"}
-            </p>
-          )}
-        </div>{" "}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={openFilter}
-            className={`gap-2${activeFiltersCount > 0 ? "border-primary text-primary" : ""}`}
-          >
-            <SlidersHorizontal className="size-4" />
-            Filter
-            {activeFiltersCount > 0 && (
-              <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
-                {activeFiltersCount}
-              </span>
+      <div className="relative shrink-0 overflow-hidden px-6 pt-6 pb-5">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/3 to-transparent" />
+        <div className="pointer-events-none absolute -top-10 -right-10 size-48 rounded-full bg-primary/8 blur-3xl" />
+        <div className="relative flex items-end justify-between">
+          <div>
+            <div className="mb-1 flex items-center gap-2.5">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/25">
+                <Heart className="size-5 text-primary" />
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight">Wishlist</h1>
+            </div>
+            {!loading && (
+              <p className="pl-0.5 text-sm text-muted-foreground">
+                {total} {total === 1 ? "product" : "products"}
+              </p>
             )}
-          </Button>
-          <Button
-            onClick={openModal}
-            className="gap-2 bg-primary hover:bg-primary/80"
-          >
-            <Plus className="size-4" />
-            Add product
-          </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={openFilter}
+              className={`gap-2${activeFiltersCount > 0 ? "border-primary text-primary" : ""}`}
+            >
+              <SlidersHorizontal className="size-4" />
+              Filter
+              {activeFiltersCount > 0 && (
+                <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </Button>
+            <Button
+              onClick={openModal}
+              className="gap-2 bg-primary hover:bg-primary/80"
+            >
+              <Plus className="size-4" />
+              Add product
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -422,7 +432,7 @@ export default function Wishlist() {
               <h2 className="text-lg font-semibold">Filter products</h2>
               <button
                 onClick={closeFilter}
-                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-red-600"
+                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
               >
                 <X className="size-4" />
               </button>
@@ -435,7 +445,7 @@ export default function Wishlist() {
                   {storeDraft && (
                     <button
                       onClick={() => setStoreDraft("")}
-                      className="flex items-center gap-1 text-xs text-red-500 hover:text-white"
+                      className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/70"
                     >
                       <X className="size-3" />
                       Clear
@@ -519,7 +529,7 @@ export default function Wishlist() {
                   {addedAfterDraft && (
                     <button
                       onClick={() => setAddedAfterDraft(undefined)}
-                      className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600"
+                      className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/70"
                     >
                       <X className="size-3" />
                       Clear
