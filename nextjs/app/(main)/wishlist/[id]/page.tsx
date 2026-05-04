@@ -246,6 +246,8 @@ export default function ProductDetail() {
                   src={product.image_url}
                   alt={product.name}
                   fill
+                  unoptimized
+                  referrerPolicy="no-referrer"
                   className="object-contain p-8"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />

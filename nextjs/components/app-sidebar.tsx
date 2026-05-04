@@ -87,8 +87,13 @@ export function AppSidebar() {
                       className="group/logo flex-1 group-data-[collapsible=icon]:!h-16 group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!p-0"
                     >
                       {/* Icon — hidden on hover when collapsed, shown otherwise */}
-                      <div className="flex aspect-square size-10 shrink-0 items-center justify-center rounded-lg bg-primary transition-opacity group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:group-hover/logo:opacity-0">
-                        PP
+                      <div className="shrink-0 transition-opacity group-data-[collapsible=icon]:group-hover/logo:opacity-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/images/price-pulse-logo.png"
+                          alt="PricePulse"
+                          className="size-10 object-contain"
+                        />
                       </div>
                       {/* PanelLeft — only shown on hover when collapsed */}
                       <PanelLeft className="absolute !size-5 scale-75 opacity-0 transition-all group-data-[collapsible=icon]:group-hover/logo:scale-100 group-data-[collapsible=icon]:group-hover/logo:opacity-100" />

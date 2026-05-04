@@ -16,6 +16,7 @@ import {
   CalendarIcon,
   Bell,
   Heart,
+  Search,
 } from "lucide-react"
 import { api } from "@/lib/api"
 import { Store, STORES } from "@/lib/enums"
@@ -26,6 +27,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
@@ -77,6 +79,12 @@ export default function Wishlist() {
   const [storeDraft, setStoreDraft] = useState<Store | "">("")
   const [statusDraft, setStatusDraft] = useState<1 | 0 | null>(null)
   const [storePopoverOpen, setStorePopoverOpen] = useState(false)
+  const [storeSearch, setStoreSearch] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [suggestions, setSuggestions] = useState<Product[]>([])
+  const [searchFocused, setSearchFocused] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
   const [activeAddedAfter, setActiveAddedAfter] = useState("")
   const [activeStore, setActiveStore] = useState<Store | "">("")
   const [activeStatus, setActiveStatus] = useState<1 | 0 | null>(null)
@@ -143,7 +151,7 @@ export default function Wishlist() {
       setLoading(true)
       api
         .get<never>(
-          `/products?page=1&perPage=${perPage}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}${activeStatus !== null ? `&status=${activeStatus}` : ""}`
+          `/products?page=1&perPage=${perPage}${debouncedSearch ? `&search=${encodeURIComponent(debouncedSearch)}` : ""}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}${activeStatus !== null ? `&status=${activeStatus}` : ""}`
         )
         .then((res) => {
           const r = res as unknown as ProductsResponse
@@ -164,7 +172,7 @@ export default function Wishlist() {
     setLoading(true)
     api
       .get<never>(
-        `/products?page=${page}&perPage=${perPage}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}${activeStatus !== null ? `&status=${activeStatus}` : ""}`
+        `/products?page=${page}&perPage=${perPage}${debouncedSearch ? `&search=${encodeURIComponent(debouncedSearch)}` : ""}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}${activeStatus !== null ? `&status=${activeStatus}` : ""}`
       )
       .then((res) => {
         const r = res as unknown as ProductsResponse
@@ -174,7 +182,43 @@ export default function Wishlist() {
       })
       .catch(handleError)
       .finally(() => setLoading(false))
-  }, [page, perPage, activeAddedAfter, activeStore, activeStatus])
+  }, [
+    page,
+    perPage,
+    activeAddedAfter,
+    activeStore,
+    activeStatus,
+    debouncedSearch,
+  ])
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSuggestions([])
+      return
+    }
+    const t = setTimeout(() => {
+      api
+        .get<never>(
+          `/products?page=1&perPage=5&search=${encodeURIComponent(searchQuery.trim())}`
+        )
+        .then((res) => {
+          const r = res as unknown as ProductsResponse
+          setSuggestions(r.data ?? [])
+        })
+        .catch(() => {})
+    }, 250)
+    return () => clearTimeout(t)
+  }, [searchQuery])
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchFocused(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   function handlePerPageChange(value: number) {
     setPerPage(value)
@@ -199,11 +243,13 @@ export default function Wishlist() {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Header */}
-      <div className="relative shrink-0 overflow-hidden px-6 pt-6 pb-5">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/3 to-transparent" />
-        <div className="pointer-events-none absolute -top-10 -right-10 size-48 rounded-full bg-primary/8 blur-3xl" />
-        <div className="relative flex items-end justify-between">
-          <div>
+      <div className="relative shrink-0 px-6 pt-6 pb-5">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/3 to-transparent" />
+          <div className="absolute -top-10 -right-10 size-48 rounded-full bg-primary/8 blur-3xl" />
+        </div>
+        <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-4">
+          <div className="shrink-0">
             <div className="mb-1 flex items-center gap-2.5">
               <div className="flex size-9 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/25">
                 <Heart className="size-5 text-primary" />
@@ -216,7 +262,81 @@ export default function Wishlist() {
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2">
+
+          {/* Search */}
+          <div className="flex justify-center">
+            <div className="relative w-200" ref={searchRef}>
+              <div className="relative">
+                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  placeholder="Search products..."
+                  className="pr-9 pl-9"
+                  onFocus={() => setSearchFocused(true)}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setSearchFocused(false)
+                    if (e.key === "Enter") {
+                      setDebouncedSearch(searchQuery.trim())
+                      setPage(1)
+                    }
+                  }}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery("")
+                      setDebouncedSearch("")
+                      setPage(1)
+                      setSearchFocused(false)
+                    }}
+                    className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="size-4" />
+                  </button>
+                )}
+              </div>
+              {searchFocused && searchQuery && suggestions.length > 0 && (
+                <div className="absolute right-0 left-0 z-50 mt-1.5 overflow-hidden rounded-2xl bg-popover shadow-lg ring-1 ring-foreground/5">
+                  <p className="px-3 pt-2.5 pb-1 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+                    Products
+                  </p>
+                  {suggestions.slice(0, 5).map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/wishlist/${product.id}`}
+                      onClick={() => setSearchFocused(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-accent hover:text-chart-3"
+                    >
+                      {product.image_url ? (
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          referrerPolicy="no-referrer"
+                          className="size-9 shrink-0 rounded-lg object-contain"
+                        />
+                      ) : (
+                        <div className="size-9 shrink-0 rounded-lg bg-muted" />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {product.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {product.store ?? "—"}
+                          {product.current_price
+                            ? ` · ${product.current_price} ${product.currency}`
+                            : ""}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2">
             <Button
               variant="outline"
               onClick={openFilter}
@@ -283,6 +403,8 @@ export default function Wishlist() {
                       src={product.image_url}
                       alt={product.name}
                       fill
+                      unoptimized
+                      referrerPolicy="no-referrer"
                       className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     />
@@ -454,48 +576,69 @@ export default function Wishlist() {
                 </div>
                 <Popover
                   open={storePopoverOpen}
-                  onOpenChange={setStorePopoverOpen}
+                  onOpenChange={(open) => {
+                    setStorePopoverOpen(open)
+                    if (!open) setStoreSearch("")
+                  }}
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between gap-2 font-normal"
-                    >
-                      <span
-                        className={storeDraft ? "" : "text-muted-foreground"}
-                      >
-                        {storeDraft
-                          ? storeDraft.charAt(0).toUpperCase() +
-                            storeDraft.slice(1)
-                          : "All stores"}
-                      </span>
-                      <ChevronDown className="size-4 text-muted-foreground" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-[--radix-popover-trigger-width] p-1.5"
-                    align="start"
-                  >
-                    {(
-                      [
-                        ["", "All stores"],
-                        ...STORES.map((s) => [
-                          s,
-                          s.charAt(0).toUpperCase() + s.slice(1),
-                        ]),
-                      ] as [Store | "", string][]
-                    ).map(([value, label]) => (
-                      <button
-                        key={value || "_all"}
-                        onClick={() => {
-                          setStoreDraft(value)
-                          setStorePopoverOpen(false)
+                  <PopoverAnchor asChild>
+                    <div className="relative w-full">
+                      <Input
+                        value={
+                          storePopoverOpen
+                            ? storeSearch
+                            : storeDraft
+                              ? storeDraft.charAt(0).toUpperCase() +
+                                storeDraft.slice(1)
+                              : ""
+                        }
+                        placeholder="All stores"
+                        onFocus={() => {
+                          setStoreSearch("")
+                          setStorePopoverOpen(true)
                         }}
-                        className={`flex w-full items-center rounded-2xl px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground ${storeDraft === value ? "text-chart-3" : ""}`}
-                      >
-                        {label}
-                      </button>
-                    ))}
+                        onChange={(e) => setStoreSearch(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Escape") setStorePopoverOpen(false)
+                        }}
+                        className="pr-8"
+                      />
+                      <ChevronDown
+                        className="absolute top-1/2 right-2.5 size-4 -translate-y-1/2 cursor-pointer text-muted-foreground"
+                        onClick={() => setStorePopoverOpen(!storePopoverOpen)}
+                      />
+                    </div>
+                  </PopoverAnchor>
+                  <PopoverContent className="w-[200px] p-1.5" align="start">
+                    <div className="max-h-[152px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
+                      {(
+                        [
+                          ["", "All stores"],
+                          ...STORES.map((s) => [
+                            s,
+                            s.charAt(0).toUpperCase() + s.slice(1),
+                          ]),
+                        ] as [Store | "", string][]
+                      )
+                        .filter(([, label]) =>
+                          label
+                            .toLowerCase()
+                            .includes(storeSearch.toLowerCase())
+                        )
+                        .map(([value, label]) => (
+                          <button
+                            key={value || "_all"}
+                            onClick={() => {
+                              setStoreDraft(value)
+                              setStorePopoverOpen(false)
+                              setStoreSearch("")
+                            }}
+                            className={`flex w-full items-center rounded-2xl px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground ${storeDraft === value ? "text-chart-3" : ""}`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
