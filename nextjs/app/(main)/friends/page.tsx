@@ -12,12 +12,14 @@ import {
   UserCheck,
   Sparkles,
   Loader2,
+  MessageCircle,
 } from "lucide-react"
 import { api } from "@/lib/api"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useNotification } from "@/components/notification"
+import { ChatPanel } from "@/components/chat-panel"
 
 type FriendshipStatus =
   | "none"
@@ -138,6 +140,8 @@ export default function FriendsPage() {
     id: number
     name: string
   } | null>(null)
+  const [chatFriend, setChatFriend] = useState<SimpleUser | null>(null)
+  const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>({})
 
   const loadFriends = useCallback(async () => {
     try {
@@ -182,7 +186,18 @@ export default function FriendsPage() {
   useEffect(() => {
     loadFriends()
     loadRequests()
+    loadUnreadCounts()
   }, [loadFriends, loadRequests])
+
+  async function loadUnreadCounts() {
+    try {
+      const res = await api.get<Record<number, number>>(
+        "/messages/unread-counts"
+      )
+      const data = (res as any).data ?? {}
+      setUnreadCounts(data)
+    } catch (e) {}
+  }
 
   function setPending(id: number, on: boolean) {
     setPendingIds((prev) => {
@@ -458,14 +473,40 @@ export default function FriendsPage() {
                 user={u}
                 index={i}
                 actions={
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    disabled={pendingIds.has(u.id)}
-                    onClick={() => setRemoveTarget({ id: u.id, name: u.name })}
-                  >
-                    <UserMinus className="size-4" /> Remove
-                  </Button>
+                  <>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => {
+                        setChatFriend(u)
+                        setUnreadCounts((prev) => {
+                          const next = { ...prev }
+                          delete next[u.id]
+                          return next
+                        })
+                      }}
+                      className="relative border-transparent bg-blue-500 text-white shadow-sm hover:bg-blue-600"
+                    >
+                      <MessageCircle className="size-4" /> Message
+                      {(unreadCounts[u.id] ?? 0) > 0 && (
+                        <span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-white">
+                          {(unreadCounts[u.id] ?? 0) > 99
+                            ? "99+"
+                            : (unreadCounts[u.id] ?? 0)}
+                        </span>
+                      )}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={pendingIds.has(u.id)}
+                      onClick={() =>
+                        setRemoveTarget({ id: u.id, name: u.name })
+                      }
+                    >
+                      <UserMinus className="size-4" /> Remove
+                    </Button>
+                  </>
                 }
               />
             ))
@@ -572,6 +613,23 @@ export default function FriendsPage() {
           </div>
         </div>
       )}{" "}
+      {/* Chat panel overlay */}
+      {chatFriend && (
+        <div
+          className="fixed inset-0 z-50 flex animate-in items-end justify-end bg-black/40 backdrop-blur-sm fade-in-0 sm:items-stretch"
+          onClick={() => setChatFriend(null)}
+        >
+          <div
+            className="h-[85vh] w-full animate-in duration-500 ease-in-out slide-in-from-bottom-4 sm:h-full sm:w-[520px] sm:slide-in-from-right-10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ChatPanel
+              friend={chatFriend}
+              onClose={() => setChatFriend(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

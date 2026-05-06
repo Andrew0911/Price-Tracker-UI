@@ -474,7 +474,7 @@ export default function Wishlist() {
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-t border-border px-6 py-4">
           {/* Per page */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>Rows per page:</span>
+            <span>Products per page:</span>
             <div className="flex gap-1">
               {PER_PAGE_OPTIONS.map((opt) => (
                 <button
