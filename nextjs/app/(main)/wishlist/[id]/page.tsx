@@ -14,6 +14,9 @@ import {
   Clock,
   Trash,
   X,
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react"
 import {
   Area,
@@ -90,6 +93,28 @@ function formatDateTime(iso: string) {
     hour: "2-digit",
     minute: "2-digit",
   })
+}
+
+function EmptyState({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ElementType
+  title: string
+  description: string
+}) {
+  return (
+    <div className="flex animate-in flex-col items-center justify-start gap-4 pt-40 duration-300 fill-mode-both fade-in">
+      <div className="flex size-18 items-center justify-center rounded-3xl bg-primary/10 p-4 ring-1 ring-primary/20">
+        <Icon className="size-9 text-primary" />
+      </div>
+      <div className="text-center">
+        <p className="text-base font-semibold">{title}</p>
+        <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  )
 }
 
 export default function ProductDetail() {
@@ -196,6 +221,24 @@ export default function ProductDetail() {
 
   const activeAlert = product?.price_alerts?.[0] ?? null
 
+  const firstHistoryPrice =
+    product?.price_history && product.price_history.length > 0
+      ? parseFloat(product.price_history[0].price)
+      : null
+  const currentPriceFloat = product?.current_price
+    ? parseFloat(product.current_price)
+    : null
+  const priceChange =
+    firstHistoryPrice !== null && currentPriceFloat !== null
+      ? currentPriceFloat - firstHistoryPrice
+      : null
+  const priceChangePercent =
+    priceChange !== null &&
+    firstHistoryPrice !== null &&
+    firstHistoryPrice !== 0
+      ? (priceChange / firstHistoryPrice) * 100
+      : null
+
   if (loading) {
     return (
       <div className="flex h-full flex-col overflow-hidden">
@@ -238,9 +281,9 @@ export default function ProductDetail() {
       <div className="min-h-0 flex-1 px-6 pb-6">
         <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
           {/* LEFT — Product details card */}
-          <div className="flex animate-in flex-col overflow-y-auto rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">
+          <div className="flex animate-in flex-col overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">
             {/* Image */}
-            <div className="relative h-80 w-full shrink-0 overflow-hidden rounded-t-3xl bg-white">
+            <div className="relative h-72 w-full shrink-0 overflow-hidden bg-white">
               {product.image_url ? (
                 <Image
                   src={product.image_url}
@@ -248,12 +291,20 @@ export default function ProductDetail() {
                   fill
                   unoptimized
                   referrerPolicy="no-referrer"
-                  className="object-contain p-8"
+                  className="object-contain p-6 transition-transform duration-500 hover:scale-[1.03]"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                   No image
+                </div>
+              )}
+              {/* Store badge */}
+              {product.store && (
+                <div className="absolute top-3 left-3">
+                  <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-semibold capitalize shadow-sm ring-1 ring-foreground/10 backdrop-blur-sm">
+                    {product.store}
+                  </span>
                 </div>
               )}
               {product.scrape_error && (
@@ -266,87 +317,108 @@ export default function ProductDetail() {
             </div>
 
             {/* Info */}
-            <div className="flex flex-1 flex-col justify-between gap-8 p-8">
-              <div className="flex flex-col gap-6">
-                <h2 className="text-2xl leading-snug font-semibold">
-                  {product.name}
-                </h2>
+            <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-6">
+              {/* Name */}
+              <h2 className="text-lg leading-snug font-semibold">
+                {product.name}
+              </h2>
 
-                {product.current_price ? (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                      Current price
+              {/* Price block */}
+              {product.current_price ? (
+                <div className="rounded-2xl bg-chart-3/10 p-4 ring-1 ring-chart-3/20">
+                  <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
+                    Current price
+                  </span>
+                  <div className="mt-1 flex items-end gap-2">
+                    <span className="text-4xl font-bold text-chart-3">
+                      {product.current_price}
                     </span>
-                    <span className="text-5xl font-bold text-chart-3">
-                      {product.current_price}{" "}
-                      <span className="text-2xl font-normal text-muted-foreground">
-                        {product.currency}
-                      </span>
+                    <span className="mb-1 text-lg font-medium text-muted-foreground">
+                      {product.currency}
                     </span>
                   </div>
-                ) : (
-                  <span className="text-sm text-muted-foreground">
-                    Price unavailable
-                  </span>
-                )}
-
-                <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-                  {product.store && (
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                        Store
-                      </span>
-                      <span className="flex items-center gap-2 text-base font-medium capitalize">
-                        <Store className="size-4 text-muted-foreground" />
-                        {product.store}
-                      </span>
-                    </div>
-                  )}
-                  {product.last_checked_at && (
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                        Last checked
-                      </span>
-                      <span className="flex items-center gap-2 text-base">
-                        <Clock className="size-4 text-muted-foreground" />
-                        {formatDateTime(product.last_checked_at)}
-                      </span>
-                    </div>
-                  )}
+                  {priceChange !== null &&
+                    priceChange !== 0 &&
+                    priceChangePercent !== null && (
+                      <div
+                        className={
+                          priceChange < 0
+                            ? "mt-2 inline-flex items-center gap-1 rounded-full bg-chart-3/15 px-2.5 py-0.5 text-xs font-semibold text-chart-3"
+                            : "mt-2 inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive"
+                        }
+                      >
+                        {priceChange < 0 ? (
+                          <TrendingDown className="size-3" />
+                        ) : (
+                          <TrendingUp className="size-3" />
+                        )}
+                        {priceChange < 0 ? "−" : "+"}
+                        {Math.abs(priceChange).toFixed(2)} {product.currency} (
+                        {priceChange < 0 ? "−" : "+"}
+                        {Math.abs(priceChangePercent).toFixed(1)}%) since
+                        tracking
+                      </div>
+                    )}
                 </div>
+              ) : (
+                <span className="text-sm text-muted-foreground">
+                  Price unavailable
+                </span>
+              )}
+
+              {/* Metadata grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {product.store && (
+                  <div className="flex flex-col gap-1 rounded-2xl bg-muted/50 p-3">
+                    <span className="text-xs text-muted-foreground">Store</span>
+                    <span className="flex items-center gap-1.5 text-sm font-medium capitalize">
+                      <Store className="size-3.5 shrink-0 text-muted-foreground" />
+                      {product.store}
+                    </span>
+                  </div>
+                )}
+                {product.last_checked_at && (
+                  <div className="flex flex-col gap-1 rounded-2xl bg-muted/50 p-3">
+                    <span className="text-xs text-muted-foreground">
+                      Last checked
+                    </span>
+                    <span className="flex items-center gap-1.5 text-sm">
+                      <Clock className="size-3.5 shrink-0 text-muted-foreground" />
+                      {formatDateTime(product.last_checked_at)}
+                    </span>
+                  </div>
+                )}
               </div>
 
-              <div className="flex flex-col gap-3">
-                <div className="flex w-full justify-end gap-2">
-                  <Link
-                    href={product.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className=""
-                  >
-                    <Button
-                      variant="outline"
-                      className="gap-2 hover:text-chart-3"
-                    >
-                      <ExternalLink className="size-4" />
-                      View on {product.store ?? "store"}
-                    </Button>
-                  </Link>
+              {/* Spacer */}
+              <div className="flex-1" />
 
-                  <Button
-                    variant="outline"
-                    className="shrink-0 gap-2 text-destructive hover:bg-destructive/10"
-                    onClick={() => setDeleteModalOpen(true)}
-                    disabled={deletingProduct}
-                  >
-                    {deletingProduct ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Trash className="size-4" />
-                    )}
-                    <span className="text-sm">Delete</span>
+              {/* Actions */}
+              <div className="flex flex-col gap-2">
+                <Link
+                  href={product.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full"
+                >
+                  <Button className="w-full gap-2">
+                    <ExternalLink className="size-4" />
+                    View on {product.store ?? "store"}
                   </Button>
-                </div>
+                </Link>
+                <Button
+                  variant="outline"
+                  className="w-full gap-2 text-destructive hover:bg-destructive/10"
+                  onClick={() => setDeleteModalOpen(true)}
+                  disabled={deletingProduct}
+                >
+                  {deletingProduct ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Trash className="size-4" />
+                  )}
+                  Remove from wishlist
+                </Button>
               </div>
             </div>
           </div>
@@ -384,9 +456,11 @@ export default function ProductDetail() {
               </div>
 
               {chartData.length < 2 ? (
-                <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-                  Not enough data yet
-                </div>
+                <EmptyState
+                  icon={Sparkles}
+                  title="Not enough data yet"
+                  description="We need more price checks to show the chart. The app will collect prices automatically over time."
+                />
               ) : (
                 <div className="min-h-0 flex-1">
                   <ChartContainer

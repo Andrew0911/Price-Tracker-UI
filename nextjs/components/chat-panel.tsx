@@ -11,11 +11,20 @@ import {
   Loader2,
   MessageCircle,
   ChevronLeft,
+  BookmarkPlus,
+  BookmarkCheck,
 } from "lucide-react"
 import { api } from "@/lib/api"
+import { useNotification } from "@/components/notification"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -86,14 +95,48 @@ function formatDate(iso: string) {
 
 // ─── Product Card (shared inside chat) ───────────────────────────────────────
 
-function SharedProductCard({ product }: { product: SharedProduct }) {
+function SharedProductCard({
+  product,
+  isOwnMessage,
+}: {
+  product: SharedProduct
+  isOwnMessage: boolean
+}) {
+  const { notify } = useNotification()
+  const [addState, setAddState] = useState<"idle" | "loading" | "added">("idle")
+
+  async function handleAddToWishlist(e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (addState !== "idle") return
+    setAddState("loading")
+    try {
+      await api.post("/products", { url: product.url })
+      setAddState("added")
+      notify({
+        type: "success",
+        message: "Product added to wishlist",
+      })
+    } catch (err: any) {
+      const msg: string = err?.message ?? ""
+      if (msg.toLowerCase().includes("already")) {
+        setAddState("added")
+        notify({
+          type: "info",
+          message: "This product is already in your wishlist",
+        })
+      } else {
+        setAddState("idle")
+        notify({
+          type: "error",
+          message: msg || "Could not add product. Please try again.",
+        })
+      }
+    }
+  }
+
   return (
-    <Link
-      href={product.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="mt-2 flex items-center gap-3 rounded-2xl border border-foreground/10 bg-background/60 p-3 transition-colors hover:bg-accent"
-    >
+    <div className="mt-2 flex items-center gap-3 rounded-2xl border border-foreground/10 bg-background/60 p-3">
       {product.image_url ? (
         <img
           src={product.image_url}
@@ -119,8 +162,45 @@ function SharedProductCard({ product }: { product: SharedProduct }) {
           </p>
         )}
       </div>
-      <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
-    </Link>
+      <TooltipProvider delayDuration={300}>
+        {!isOwnMessage && addState !== "added" ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={handleAddToWishlist}
+                disabled={addState === "loading"}
+                className="shrink-0 rounded-xl p-1.5 text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary disabled:opacity-60"
+              >
+                {addState === "loading" ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <BookmarkPlus className="size-4" />
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Add to wishlist</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href={product.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 rounded-xl p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                {addState === "added" ? (
+                  <BookmarkCheck className="size-4 text-primary" />
+                ) : (
+                  <ExternalLink className="size-4" />
+                )}
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>View product</TooltipContent>
+          </Tooltip>
+        )}
+      </TooltipProvider>
+    </div>
   )
 }
 
@@ -440,7 +520,10 @@ export function ChatPanel({ friend, onClose }: ChatPanelProps) {
                             </p>
                           )}
                           {msg.product && (
-                            <SharedProductCard product={msg.product} />
+                            <SharedProductCard
+                              product={msg.product}
+                              isOwnMessage={msg.is_mine}
+                            />
                           )}
                           <p
                             className={`mt-1 text-right text-[10px] ${
@@ -493,13 +576,19 @@ export function ChatPanel({ friend, onClose }: ChatPanelProps) {
           {/* Input */}
           <div className="shrink-0 border-t border-foreground/10 px-4 py-3">
             <div className="flex items-end gap-2">
-              <button
-                onClick={() => setShowPicker(true)}
-                title="Share a product"
-                className="mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary"
-              >
-                <ShoppingBag className="size-4" />
-              </button>
+              <TooltipProvider delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setShowPicker(true)}
+                      className="mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary"
+                    >
+                      <ShoppingBag className="size-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Share a product</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Input
                 ref={inputRef}
                 value={body}
