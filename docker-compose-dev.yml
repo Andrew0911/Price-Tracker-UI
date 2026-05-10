@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  # SERVICIUL FRONTEND (Next.js)
+  frontend:
+    container_name: frontend-dev
+    restart: unless-stopped
+
+    build:
+      context: ./nextjs
+      dockerfile: ../docker/Dockerfile.dev
+
+    volumes:
+      - ./nextjs:/app
+      - /app/node_modules
+      - /app/.next
+
+    ports:
+      - "3000:3000"

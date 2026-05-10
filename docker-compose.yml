@@ -1,20 +1,17 @@
-version: '3.8'
+version: "3.8"
 
 services:
-
-  # SERVICIUL FRONTEND (Next.js)
   frontend:
     container_name: frontend
-    restart: unless-stopped
-
+    restart: always
     build:
       context: ./nextjs
       dockerfile: ../docker/Dockerfile
-    
-    volumes:
-      - ./nextjs:/app
-      - /app/node_modules
-      - /app/.next
-    
     ports:
       - "3000:3000"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    external: true
