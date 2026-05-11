@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import {
   Sidebar,
   SidebarContent,
@@ -42,6 +43,8 @@ import {
 import { api, clearAuthToken } from "@/lib/api"
 import { useNotification } from "@/components/notification"
 import { useUser, clearUserCache } from "@/lib/user-context"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 const navItems = [
   { title: "Dashboard", icon: LayoutDashboard, url: "dashboard" },
@@ -54,7 +57,19 @@ export function AppSidebar() {
   const pathname = usePathname()
   const { notify } = useNotification()
   const { user } = useUser()
-  const { toggleSidebar, state } = useSidebar()
+  const { toggleSidebar, state, setOpenMobile } = useSidebar()
+  const isMobile = useIsMobile()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }
 
   async function handleLogout() {
     try {
@@ -140,7 +155,7 @@ export function AppSidebar() {
                         isActive={pathname === `/${item.url}`}
                         className="text-base transition-colors group-data-[collapsible=icon]:!h-14 group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!p-0 hover:bg-transparent hover:text-chart-3 data-[active=true]:bg-sidebar-accent data-[active=true]:text-chart-3"
                       >
-                        <Link href={`/${item.url}`}>
+                        <Link href={`/${item.url}`} onClick={handleNavClick}>
                           <item.icon className="!size-5 shrink-0 group-data-[collapsible=icon]:!size-6" />
                           <span className="group-data-[collapsible=icon]:hidden">
                             {item.title}
@@ -159,6 +174,16 @@ export function AppSidebar() {
         {/* 3. PARTEA DE JOS: Utilizatorul */}
         <SidebarFooter>
           <SidebarMenu>
+            {/* Theme Toggle for Desktop */}
+            {mounted && !isMobile && (
+              <SidebarMenuItem className="group-data-[state=collapsed]:hidden">
+                <div className="mb-2 flex items-center justify-between rounded-md px-2 py-3 transition-colors hover:bg-sidebar-accent/50">
+                  <span className="text-sm text-muted-foreground">Theme</span>
+                  <ThemeToggle />
+                </div>
+              </SidebarMenuItem>
+            )}
+
             <SidebarMenuItem>
               <DropdownMenu>
                 <Tooltip open={state === "collapsed" ? undefined : false}>
@@ -196,7 +221,10 @@ export function AppSidebar() {
                 >
                   <DropdownMenuItem
                     className="cursor-pointer py-2 text-base"
-                    onClick={() => router.push("/profile")}
+                    onClick={() => {
+                      router.push("/profile")
+                      handleNavClick()
+                    }}
                   >
                     <BadgeCheck className="size-4" />
                     <span>Profile</span>
@@ -204,7 +232,10 @@ export function AppSidebar() {
 
                   <DropdownMenuItem
                     className="cursor-pointer py-2 text-base"
-                    onClick={() => router.push("/account-settings")}
+                    onClick={() => {
+                      router.push("/account-settings")
+                      handleNavClick()
+                    }}
                   >
                     <Settings className="size-4" />
                     <span>Account Settings</span>

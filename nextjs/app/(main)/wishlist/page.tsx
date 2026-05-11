@@ -243,18 +243,20 @@ export default function Wishlist() {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Header */}
-      <div className="relative shrink-0 px-6 pt-6 pb-5">
+      <div className="relative shrink-0 px-4 pt-4 pb-4 md:px-6 md:pt-6 md:pb-5">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/3 to-transparent" />
           <div className="absolute -top-10 -right-10 size-48 rounded-full bg-primary/8 blur-3xl" />
         </div>
-        <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-4">
+        <div className="relative flex flex-col gap-3 md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4">
           <div className="shrink-0">
-            <div className="mb-1 flex items-center gap-2.5">
-              <div className="flex size-9 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/25">
-                <Heart className="size-5 text-primary" />
+            <div className="mb-1 flex items-center gap-2">
+              <div className="flex size-8 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/25 md:size-9">
+                <Heart className="size-4 text-primary md:size-5" />
               </div>
-              <h1 className="text-3xl font-bold tracking-tight">Wishlist</h1>
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+                Wishlist
+              </h1>
             </div>
             {!loading && (
               <p className="pl-0.5 text-sm text-muted-foreground">
@@ -264,8 +266,8 @@ export default function Wishlist() {
           </div>
 
           {/* Search */}
-          <div className="flex justify-center">
-            <div className="relative w-200" ref={searchRef}>
+          <div className="flex w-full justify-center md:w-auto">
+            <div className="relative w-full md:w-200" ref={searchRef}>
               <div className="relative">
                 <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -336,14 +338,16 @@ export default function Wishlist() {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex w-full shrink-0 items-center gap-2 md:w-auto">
             <Button
               variant="outline"
               onClick={openFilter}
-              className={`gap-2${activeFiltersCount > 0 ? "border-primary text-primary" : ""}`}
+              size="sm"
+              className={`flex-1 gap-1 text-xs md:flex-none md:gap-2 md:text-sm${activeFiltersCount > 0 ? "border-primary text-primary" : ""}`}
             >
-              <SlidersHorizontal className="size-4" />
-              Filter
+              <SlidersHorizontal className="size-3 md:size-4" />
+              <span className="hidden sm:inline">Filter</span>
+              <span className="sm:hidden">Filter</span>
               {activeFiltersCount > 0 && (
                 <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
                   {activeFiltersCount}
@@ -352,19 +356,21 @@ export default function Wishlist() {
             </Button>
             <Button
               onClick={openModal}
-              className="gap-2 bg-primary hover:bg-primary/80"
+              size="sm"
+              className="flex-1 gap-1 bg-primary text-xs hover:bg-primary/80 md:flex-none md:gap-2 md:text-sm"
             >
-              <Plus className="size-4" />
-              Add product
+              <Plus className="size-3 md:size-4" />
+              <span className="hidden sm:inline">Add product</span>
+              <span className="sm:hidden">Add product</span>
             </Button>
           </div>
         </div>
       </div>
 
       {/* Grid */}
-      <div className="flex-1 overflow-y-auto px-6">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6">
         {loading ? (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: perPage > 12 ? 12 : perPage }).map((_, i) => (
               <div
                 key={i}
@@ -388,7 +394,7 @@ export default function Wishlist() {
             <p className="text-base">Your wishlist is empty.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product, i) => (
               <Link
                 key={product.id}
@@ -471,16 +477,17 @@ export default function Wishlist() {
 
       {/* Pagination */}
       {!loading && total > 0 && (
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-t border-border px-6 py-4">
+        <div className="flex shrink-0 flex-col flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3 md:flex-row md:gap-4 md:px-6 md:py-4">
           {/* Per page */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>Products per page:</span>
+          <div className="flex w-full items-center gap-2 text-xs text-muted-foreground md:w-auto md:text-sm">
+            <span className="hidden md:inline">Products per page:</span>
+            <span className="md:hidden">Per page:</span>
             <div className="flex gap-1">
               {PER_PAGE_OPTIONS.map((opt) => (
                 <button
                   key={opt}
                   onClick={() => handlePerPageChange(opt)}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                  className={`rounded-lg px-1.5 py-0.5 text-[10px] font-medium transition-colors md:px-2.5 md:py-1 md:text-xs ${
                     perPage === opt
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -494,7 +501,7 @@ export default function Wishlist() {
 
           {/* Pages */}
           {lastPage > 1 && (
-            <div className="flex items-center gap-1">
+            <div className="flex w-full items-center gap-1 overflow-x-auto md:w-auto">
               <Button
                 variant="outline"
                 size="sm"
@@ -547,7 +554,7 @@ export default function Wishlist() {
           onClick={closeFilter}
         >
           <div
-            className="w-full max-w-sm animate-in rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-top-2"
+            className="w-full max-w-sm animate-in rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-top-2 md:max-w-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5 flex items-center justify-between">
@@ -730,7 +737,7 @@ export default function Wishlist() {
           onClick={closeModal}
         >
           <div
-            className="w-full max-w-lg animate-in rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-top-2"
+            className="w-full max-w-sm animate-in rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-top-2 md:max-w-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5 flex items-center justify-between">
