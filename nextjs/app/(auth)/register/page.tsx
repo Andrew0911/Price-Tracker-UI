@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { ShoppingBag, TrendingDown, Bell, Tag, Eye, EyeOff } from "lucide-react"
+import { TrendingDown, Bell, Tag, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { api } from "@/lib/api"
 import { useNotification } from "@/components/notification"
@@ -60,7 +60,11 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="relative flex items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-            <ShoppingBag className="size-5" />
+            <img
+              src="/images/price-pulse-logo.png"
+              alt="PricePulse"
+              className="size-10 object-contain"
+            />
           </div>
           <span className="text-lg font-semibold tracking-tight">
             Price Pulse
@@ -85,7 +89,7 @@ export default function RegisterPage() {
             {[
               { icon: TrendingDown, text: "Real-time price history charts" },
               { icon: Bell, text: "Instant drop alerts via email" },
-              { icon: Tag, text: "Price comparison across retailers" },
+              { icon: Tag, text: "Multiple retailers support" },
             ].map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-3">
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
@@ -110,7 +114,11 @@ export default function RegisterPage() {
         {/* Mobile logo */}
         <div className="mb-8 flex items-center gap-2 lg:hidden">
           <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <ShoppingBag className="size-5" />
+            <img
+              src="/images/price-pulse-logo.png"
+              alt="PricePulse"
+              className="size-10 object-contain"
+            />
           </div>
           <span className="text-base font-semibold">Price Pulse</span>
         </div>
