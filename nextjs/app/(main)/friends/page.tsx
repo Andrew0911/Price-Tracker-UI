@@ -14,6 +14,7 @@ import {
   Loader2,
   MessageCircle,
   Info,
+  Ban,
 } from "lucide-react"
 import { api } from "@/lib/api"
 import { Input } from "@/components/ui/input"
@@ -83,19 +84,25 @@ function UserRow({
   user,
   actions,
   index = 0,
+  compact = false,
 }: {
   user: { name: string; email: string }
   actions: React.ReactNode
   index?: number
+  compact?: boolean
 }) {
   return (
     <div
-      className="flex animate-in items-center gap-4 rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both fade-in slide-in-from-bottom-3"
+      className={`flex animate-in items-center rounded-2xl bg-card shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both fade-in slide-in-from-bottom-3 ${
+        compact ? "gap-3 px-4 py-3.5" : "gap-4 px-5 py-4"
+      }`}
       style={{ animationDelay: `${index * 60}ms` }}
     >
       <UserAvatar name={user.name} />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="truncate font-semibold no-underline [text-decoration:none] [&_a]:no-underline [&_a]:[text-decoration:none]">{user.name}</span>
+        <span className="truncate font-semibold no-underline [text-decoration:none] [&_a]:no-underline [&_a]:[text-decoration:none]">
+          {user.name}
+        </span>
         <span className="truncate text-sm text-muted-foreground">
           {user.email}
         </span>
@@ -280,20 +287,23 @@ export default function FriendsPage() {
             size="sm"
             disabled={p}
             onClick={() => setRemoveTarget({ id: u.id, name: u.name })}
+            className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
           >
-            <UserMinus className="size-4" /> Remove
+            <UserMinus className="size-3.5 sm:size-4" />
+            <span className="hidden sm:inline">Remove</span>
           </Button>
         )
       case "pending_sent":
         return (
           <Button
-            variant="outline"
+            variant="destructive"
             size="sm"
             disabled={p}
             onClick={() => handleAction(u.id, "cancel", u.name)}
-            className="border-primary/30 text-chart-3 hover:bg-primary/10"
+            className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:gap-1.5 sm:px-3 sm:text-sm"
           >
-            <Clock className="size-4" /> Friend request sent
+            <Ban className="size-3.5 sm:size-4" />
+            <span className="hidden sm:inline">Cancel friend request</span>
           </Button>
         )
       case "pending_received":
@@ -304,16 +314,20 @@ export default function FriendsPage() {
               size="sm"
               disabled={p}
               onClick={() => handleAction(u.id, "accept", u.name)}
+              className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:gap-1.5 sm:px-3 sm:text-sm"
             >
-              <Check className="size-4" /> Accept
+              <Check className="size-3.5 sm:size-4" />
+              <span className="hidden sm:inline">Accept</span>
             </Button>
             <Button
               variant="destructive"
               size="sm"
               disabled={p}
               onClick={() => handleAction(u.id, "decline", u.name)}
+              className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
             >
-              <X className="size-4" /> Decline
+              <X className="size-3.5 sm:size-4" />
+              <span className="hidden sm:inline">Decline</span>
             </Button>
           </>
         )
@@ -324,8 +338,10 @@ export default function FriendsPage() {
             size="sm"
             disabled={p}
             onClick={() => handleAction(u.id, "send", u.name)}
+            className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:gap-1.5 sm:px-3 sm:text-sm"
           >
-            <UserPlus className="size-4" /> Add friend
+            <UserPlus className="size-3.5 sm:size-4" />
+            <span className="hidden sm:inline">Add friend</span>
           </Button>
         )
     }
@@ -520,6 +536,7 @@ export default function FriendsPage() {
                 key={u.id}
                 user={u}
                 index={i}
+                compact
                 actions={
                   <>
                     <Button
@@ -533,11 +550,12 @@ export default function FriendsPage() {
                           return next
                         })
                       }}
-                      className="relative border-transparent bg-blue-500 text-white shadow-sm hover:bg-blue-600"
+                      className="relative h-8 w-8 border-transparent bg-blue-500 p-0 text-white shadow-sm hover:bg-blue-600 sm:h-9 sm:w-auto sm:gap-1.5 sm:px-3 sm:text-sm"
                     >
-                      <MessageCircle className="size-4" /> Message
+                      <MessageCircle className="size-3.5 sm:size-4" />
+                      <span className="hidden sm:inline">Message</span>
                       {(unreadCounts[u.id] ?? 0) > 0 && (
-                        <span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        <span className="absolute -top-1.5 -right-1.5 inline-flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 py-0.5 text-[9px] font-bold leading-none text-white">
                           {(unreadCounts[u.id] ?? 0) > 99
                             ? "99+"
                             : (unreadCounts[u.id] ?? 0)}
@@ -551,8 +569,10 @@ export default function FriendsPage() {
                       onClick={() =>
                         setRemoveTarget({ id: u.id, name: u.name })
                       }
+                      className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:gap-1.5 sm:px-3 sm:text-sm"
                     >
-                      <UserMinus className="size-4" /> Remove
+                      <UserMinus className="size-3.5 sm:size-4" />
+                      <span className="hidden sm:inline">Remove</span>
                     </Button>
                   </>
                 }
@@ -585,16 +605,20 @@ export default function FriendsPage() {
                       size="sm"
                       disabled={pendingIds.has(u.id)}
                       onClick={() => handleAction(u.id, "accept", u.name)}
+                      className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:gap-1.5 sm:px-3 sm:text-sm"
                     >
-                      <Check className="size-4" /> Accept
+                      <Check className="size-3.5 sm:size-4" />
+                      <span className="hidden sm:inline">Accept</span>
                     </Button>
                     <Button
                       variant="destructive"
                       size="sm"
                       disabled={pendingIds.has(u.id)}
                       onClick={() => handleAction(u.id, "decline", u.name)}
+                      className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
                     >
-                      <X className="size-4" /> Decline
+                      <X className="size-3.5 sm:size-4" />
+                      <span className="hidden sm:inline">Decline</span>
                     </Button>
                   </>
                 }
@@ -605,7 +629,7 @@ export default function FriendsPage() {
       {/* Remove friend confirmation modal */}
       {removeTarget && (
         <div
-          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 pt-[20vh] backdrop-blur-sm fade-in-0"
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0 fade-in-0"
           onClick={() => setRemoveTarget(null)}
         >
           <div
@@ -681,6 +705,7 @@ export default function FriendsPage() {
     </div>
   )
 }
+
 
 
 

@@ -39,6 +39,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { api } from "@/lib/api"
 import { useErrorHandler } from "@/lib/use-error-handler"
 import { useNotification } from "@/components/notification"
+import { formatDate, formatDateTime } from "@/lib/utils"
 
 type PriceHistory = {
   id: number
@@ -95,24 +96,6 @@ function renderFilledPriceDot({ cx, cy }: { cx?: number; cy?: number }) {
       strokeWidth={2}
     />
   )
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  })
-}
-
-function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
 }
 
 function EmptyState({
@@ -587,7 +570,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Price alert — fixed height */}
-            <div className="flex shrink-0 flex-col gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5">
+            <div className="mb-4 flex shrink-0 flex-col gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 lg:mb-0">
               <div>
                 <h3 className="font-semibold">Price alert</h3>
                 <p className="text-xs text-muted-foreground">
@@ -667,7 +650,7 @@ export default function ProductDetail() {
       {/* Delete confirmation modal */}
       {deleteModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 pt-[20vh] backdrop-blur-sm fade-in-0"
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0 fade-in-0"
           onClick={() => setDeleteModalOpen(false)}
         >
           <div
@@ -713,3 +696,4 @@ export default function ProductDetail() {
     </div>
   )
 }
+

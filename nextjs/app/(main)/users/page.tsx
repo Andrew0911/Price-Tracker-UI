@@ -16,6 +16,7 @@ import { useNotification } from "@/components/notification"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { formatDateTime } from "@/lib/utils"
 
 type AdminUser = {
   id: number
@@ -157,7 +158,7 @@ export default function UsersPage() {
           <div className="rounded-2xl bg-muted/40 p-3">
             <p className="text-xs text-muted-foreground">Created</p>
             <p className="font-medium">
-              {new Date(target.created_at).toLocaleDateString()}
+              {formatDateTime(target.created_at)}
             </p>
           </div>
         </div>
@@ -407,7 +408,7 @@ export default function UsersPage() {
 
       {deleteTarget && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 pt-[20vh] backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0"
           onClick={() => setDeleteTarget(null)}
         >
           <div
@@ -455,6 +456,7 @@ export default function UsersPage() {
     </div>
   )
 }
+
 
 
 

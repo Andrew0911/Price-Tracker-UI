@@ -3,6 +3,7 @@
 import { User2, Mail, CalendarDays, BadgeCheck } from "lucide-react"
 import { useUser } from "@/lib/user-context"
 import { Skeleton } from "@/components/ui/skeleton"
+import { formatDateTime } from "@/lib/utils"
 
 function ProfileField({
   icon: Icon,
@@ -60,14 +61,14 @@ export default function ProfilePage() {
                 label="Email verified"
                 value={
                   user.email_verified_at
-                    ? new Date(user.email_verified_at).toLocaleDateString()
+                    ? formatDateTime(user.email_verified_at)
                     : "Not verified"
                 }
               />
               <ProfileField
                 icon={CalendarDays}
                 label="Member since"
-                value={new Date(user.created_at).toLocaleDateString()}
+                value={formatDateTime(user.created_at)}
               />
             </>
           ) : null}

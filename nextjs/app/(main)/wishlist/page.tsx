@@ -581,7 +581,7 @@ export default function Wishlist() {
       {/* Filter Modal */}
       {filterOpen && (
         <div
-          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 pt-[20vh] backdrop-blur-sm fade-in-0"
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0 fade-in-0"
           onClick={closeFilter}
         >
           <div
@@ -764,7 +764,7 @@ export default function Wishlist() {
       {/* Add Product Modal */}
       {modalOpen && (
         <div
-          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 pt-[20vh] backdrop-blur-sm fade-in-0"
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0 fade-in-0"
           onClick={closeModal}
         >
           <div
@@ -820,6 +820,7 @@ export default function Wishlist() {
     </div>
   )
 }
+
 
 
 

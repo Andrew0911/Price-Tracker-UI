@@ -25,6 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { formatDateTime } from "@/lib/utils"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -63,9 +64,10 @@ type WishlistResponse = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString([], {
+  return new Date(iso).toLocaleTimeString("ro-RO", {
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   })
 }
 
@@ -92,7 +94,6 @@ function formatDate(iso: string) {
     year: "numeric",
   })
 }
-
 // ─── Product Card (shared inside chat) ───────────────────────────────────────
 
 function SharedProductCard({
@@ -252,7 +253,7 @@ function ProductPicker({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search wishlist..."
-          className="h-9 text-sm"
+          className="h-9 text-base md:text-sm"
           autoFocus
         />
       </div>
@@ -621,3 +622,4 @@ export function ChatPanel({ friend, onClose }: ChatPanelProps) {
     </div>
   )
 }
+
