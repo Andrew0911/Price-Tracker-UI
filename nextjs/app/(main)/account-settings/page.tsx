@@ -78,6 +78,10 @@ export default function AccountSettingsPage() {
         apiErr?.message ??
         "Something went wrong."
       setDeleteError(msg)
+      notify({
+        type: "error",
+        message: msg,
+      })
     } finally {
       setDeleting(false)
     }
@@ -181,13 +185,15 @@ export default function AccountSettingsPage() {
             </p>
 
             {!showDeleteConfirm ? (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setShowDeleteConfirm(true)}
-              >
-                Delete account
-              </Button>
+              <div className="flex justify-end">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  Delete account
+                </Button>
+              </div>
             ) : (
               <div className="flex animate-in flex-col gap-4 duration-200 fade-in slide-in-from-top-2">
                 <div className="flex items-start gap-2 rounded-2xl bg-destructive/10 p-4 text-xs text-destructive">
@@ -211,7 +217,7 @@ export default function AccountSettingsPage() {
                         setDeletePassword(e.target.value)
                         setDeleteError(null)
                       }}
-                      className="h-10 rounded-xl pr-10 text-sm"
+                      className="h-10 rounded-xl pr-10 text-base md:text-sm"
                       autoFocus
                     />
                     <button
@@ -229,13 +235,10 @@ export default function AccountSettingsPage() {
                       )}
                     </button>
                   </div>
-                  {deleteError && (
-                    <p className="text-xs text-destructive">{deleteError}</p>
-                  )}
                 </div>
                 <div className="flex items-center justify-between gap-3 pt-1">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => {
                       setShowDeleteConfirm(false)

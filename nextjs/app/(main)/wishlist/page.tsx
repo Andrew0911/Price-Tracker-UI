@@ -79,7 +79,6 @@ export default function Wishlist() {
   const [storeDraft, setStoreDraft] = useState<Store | "">("")
   const [statusDraft, setStatusDraft] = useState<1 | 0 | null>(null)
   const [storePopoverOpen, setStorePopoverOpen] = useState(false)
-  const [storeSearch, setStoreSearch] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [suggestions, setSuggestions] = useState<Product[]>([])
@@ -100,6 +99,7 @@ export default function Wishlist() {
 
   function closeFilter() {
     setFilterOpen(false)
+    setStorePopoverOpen(false)
   }
 
   function applyFilter() {
@@ -121,6 +121,14 @@ export default function Wishlist() {
     setActiveStatus(null)
     setPage(1)
     setFilterOpen(false)
+  }
+
+  function openStorePopover() {
+    setStorePopoverOpen(true)
+  }
+
+  function closeStorePopover() {
+    setStorePopoverOpen(false)
   }
 
   const activeFiltersCount =
@@ -615,39 +623,45 @@ export default function Wishlist() {
                 <Popover
                   open={storePopoverOpen}
                   onOpenChange={(open) => {
-                    setStorePopoverOpen(open)
-                    if (!open) setStoreSearch("")
+                    if (open) {
+                      openStorePopover()
+                    } else {
+                      closeStorePopover()
+                    }
                   }}
                 >
                   <PopoverAnchor asChild>
                     <div className="relative w-full">
                       <Input
                         value={
-                          storePopoverOpen
-                            ? storeSearch
-                            : storeDraft
-                              ? storeDraft.charAt(0).toUpperCase() +
-                                storeDraft.slice(1)
-                              : ""
+                          storeDraft
+                            ? storeDraft.charAt(0).toUpperCase() +
+                              storeDraft.slice(1)
+                            : ""
                         }
                         placeholder="All stores"
-                        onFocus={() => {
-                          setStoreSearch("")
-                          setStorePopoverOpen(true)
-                        }}
-                        onChange={(e) => setStoreSearch(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Escape") setStorePopoverOpen(false)
-                        }}
-                        className="pr-8 text-base md:text-sm"
+                        readOnly
+                        onClick={() =>
+                          storePopoverOpen
+                            ? closeStorePopover()
+                            : openStorePopover()
+                        }
+                        className="cursor-pointer pr-8 text-base md:text-sm"
                       />
                       <ChevronDown
                         className="absolute top-1/2 right-2.5 size-4 -translate-y-1/2 cursor-pointer text-muted-foreground"
-                        onClick={() => setStorePopoverOpen(!storePopoverOpen)}
+                        onClick={() =>
+                          storePopoverOpen
+                            ? closeStorePopover()
+                            : openStorePopover()
+                        }
                       />
                     </div>
                   </PopoverAnchor>
-                  <PopoverContent className="w-[200px] p-1.5" align="start">
+                  <PopoverContent
+                    className="w-[var(--radix-popover-trigger-width)] p-1.5"
+                    align="start"
+                  >
                     <div className="max-h-[152px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
                       {(
                         [
@@ -657,19 +671,12 @@ export default function Wishlist() {
                             s.charAt(0).toUpperCase() + s.slice(1),
                           ]),
                         ] as [Store | "", string][]
-                      )
-                        .filter(([, label]) =>
-                          label
-                            .toLowerCase()
-                            .includes(storeSearch.toLowerCase())
-                        )
-                        .map(([value, label]) => (
+                      ).map(([value, label]) => (
                           <button
                             key={value || "_all"}
                             onClick={() => {
                               setStoreDraft(value)
-                              setStorePopoverOpen(false)
-                              setStoreSearch("")
+                              closeStorePopover()
                             }}
                             className={`flex w-full items-center rounded-2xl px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground ${storeDraft === value ? "text-chart-3" : ""}`}
                           >
