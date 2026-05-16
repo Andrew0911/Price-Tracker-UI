@@ -105,7 +105,7 @@ function EmptyState({
   description: string
 }) {
   return (
-    <div className="flex animate-in flex-col items-center justify-start gap-4 pt-40 duration-300 fill-mode-both fade-in">
+    <div className="flex min-h-0 flex-1 animate-in flex-col items-center justify-center gap-4 duration-300 fill-mode-both fade-in">
       <div className="flex size-18 items-center justify-center rounded-3xl bg-primary/10 p-4 ring-1 ring-primary/20">
         <Icon className="size-9 text-primary" />
       </div>
@@ -241,13 +241,13 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex min-h-full flex-col">
         <div className="flex shrink-0 items-center gap-3 px-6 py-4">
           <Skeleton className="h-8 w-20 rounded-2xl" />
           <Skeleton className="h-5 w-64" />
         </div>
         <div className="min-h-0 flex-1 px-6 pb-6">
-          <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:h-full lg:grid-cols-2">
             <Skeleton className="h-full rounded-3xl" />
             <div className="flex flex-col gap-6">
               <Skeleton className="flex-1 rounded-3xl" />
@@ -262,7 +262,7 @@ export default function ProductDetail() {
   if (!product) return null
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className="flex min-h-full flex-col">
       {/* Top bar */}
       <div className="flex shrink-0 items-center gap-3 px-6 py-4">
         <Button
@@ -279,7 +279,7 @@ export default function ProductDetail() {
 
       {/* Cards fill remaining space */}
       <div className="min-h-0 flex-1 px-6 pb-6">
-        <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:h-full lg:grid-cols-2">
           {/* LEFT — Product details card */}
           <div className="flex animate-in flex-col overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">
             {/* Image */}
@@ -317,7 +317,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Info */}
-            <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-6">
+            <div className="flex flex-col gap-5 p-6 lg:flex-1 lg:overflow-y-auto">
               {/* Name */}
               <h2 className="text-lg leading-snug font-semibold">
                 {product.name}
@@ -429,7 +429,7 @@ export default function ProductDetail() {
             style={{ animationDelay: "75ms" }}
           >
             {/* Price history chart — grows to fill */}
-            <div className="flex min-h-0 flex-1 flex-col gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5">
+            <div className="flex min-h-[300px] flex-col gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 lg:min-h-0 lg:flex-1">
               <div className="flex shrink-0 items-start justify-between">
                 <div>
                   <h3 className="font-semibold">Price history</h3>

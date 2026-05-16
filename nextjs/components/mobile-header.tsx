@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useEffect, useState } from "react"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -21,7 +22,10 @@ export function MobileHeader() {
         />
 
         {/* Logo & Brand Name */}
-        <div className="flex flex-1 items-center justify-center gap-2">
+        <Link
+          href="/dashboard"
+          className="flex flex-1 items-center justify-center gap-2"
+        >
           <img
             src="/images/price-pulse-logo.png"
             alt="PricePulse"
@@ -30,7 +34,7 @@ export function MobileHeader() {
           <span className="text-lg font-semibold text-chart-4">
             Price Pulse
           </span>
-        </div>
+        </Link>
 
         {/* Theme Toggle */}
         {mounted && <ThemeToggle />}

@@ -38,6 +38,7 @@ import {
   ChevronRight,
   Heart,
   Users,
+  ShieldUser,
   PanelLeft,
 } from "lucide-react"
 import { api, clearAuthToken } from "@/lib/api"
@@ -45,12 +46,6 @@ import { useNotification } from "@/components/notification"
 import { useUser, clearUserCache } from "@/lib/user-context"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { ThemeToggle } from "@/components/theme-toggle"
-
-const navItems = [
-  { title: "Dashboard", icon: LayoutDashboard, url: "dashboard" },
-  { title: "Wishlist", icon: Heart, url: "wishlist" },
-  { title: "Friends", icon: Users, url: "friends" },
-]
 
 export function AppSidebar() {
   const router = useRouter()
@@ -60,6 +55,17 @@ export function AppSidebar() {
   const { toggleSidebar, state, setOpenMobile } = useSidebar()
   const isMobile = useIsMobile()
   const [mounted, setMounted] = useState(false)
+  const navItems = user?.is_admin
+    ? [
+        { title: "Dashboard", icon: LayoutDashboard, url: "dashboard" },
+        { title: "Wishlist", icon: Heart, url: "wishlist" },
+        { title: "Users", icon: ShieldUser, url: "users" },
+      ]
+    : [
+        { title: "Dashboard", icon: LayoutDashboard, url: "dashboard" },
+        { title: "Wishlist", icon: Heart, url: "wishlist" },
+        { title: "Friends", icon: Users, url: "friends" },
+      ]
 
   useEffect(() => {
     setMounted(true)
@@ -97,9 +103,14 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       size="lg"
                       onClick={() => {
-                        if (state === "collapsed") toggleSidebar()
+                        if (state === "collapsed") {
+                          toggleSidebar()
+                        } else {
+                          router.push("/dashboard")
+                          handleNavClick()
+                        }
                       }}
-                      className="group/logo flex-1 group-data-[collapsible=icon]:!h-16 group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!p-0"
+                      className="group/logo flex-1 transition-colors hover:bg-primary/5 hover:text-chart-3 group-data-[collapsible=icon]:!h-16 group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!p-0"
                     >
                       {/* Icon — hidden on hover when collapsed, shown otherwise */}
                       <div className="shrink-0 transition-opacity group-data-[collapsible=icon]:group-hover/logo:opacity-0">
@@ -112,7 +123,7 @@ export function AppSidebar() {
                       </div>
                       {/* PanelLeft — only shown on hover when collapsed */}
                       <PanelLeft className="absolute !size-5 scale-75 opacity-0 transition-all group-data-[collapsible=icon]:group-hover/logo:scale-100 group-data-[collapsible=icon]:group-hover/logo:opacity-100" />
-                      <div className="flex flex-col gap-0 leading-none group-data-[collapsible=icon]:hidden">
+                      <div className="flex flex-col gap-0 leading-none transition-colors group-data-[collapsible=icon]:hidden">
                         <span className="text-base">Price Pulse</span>
                         <span className="text-sm text-muted-foreground">
                           Shop smarter
@@ -216,8 +227,8 @@ export function AppSidebar() {
                 <DropdownMenuContent
                   side="right"
                   align="end"
-                  sideOffset={15}
-                  className="w-56 rounded-lg text-base"
+                  sideOffset={isMobile ? 14 : 15}
+                  className="w-40 rounded-lg text-base sm:w-56"
                 >
                   <DropdownMenuItem
                     className="cursor-pointer py-2 text-base"

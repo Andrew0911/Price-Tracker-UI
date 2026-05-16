@@ -616,11 +616,11 @@ export default function FriendsPage() {
       {/* Chat panel overlay */}
       {chatFriend && (
         <div
-          className="fixed inset-0 z-50 flex animate-in items-end justify-end bg-black/40 backdrop-blur-sm fade-in-0 sm:items-stretch"
+          className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/40 p-4 backdrop-blur-sm fade-in-0 sm:items-stretch sm:justify-end sm:p-0"
           onClick={() => setChatFriend(null)}
         >
           <div
-            className="h-[85vh] w-full animate-in duration-500 ease-in-out slide-in-from-bottom-4 sm:h-full sm:w-[520px] sm:slide-in-from-right-10"
+            className="h-[85vh] w-full max-w-md animate-in duration-500 ease-in-out zoom-in-95 fade-in sm:h-full sm:w-[520px] sm:max-w-none sm:slide-in-from-right-10"
             onClick={(e) => e.stopPropagation()}
           >
             <ChatPanel

@@ -434,7 +434,7 @@ export function ChatPanel({ friend, onClose }: ChatPanelProps) {
   }
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden rounded-none bg-card shadow-2xl ring-1 ring-foreground/10 sm:rounded-3xl">
+    <div className="flex h-full w-full flex-col overflow-hidden rounded-3xl bg-card shadow-2xl ring-1 ring-foreground/10">
       {/* Header */}
       <div className="flex shrink-0 items-center gap-3 border-b border-foreground/10 px-5 py-4">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 text-xs font-bold text-white shadow">

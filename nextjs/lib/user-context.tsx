@@ -14,12 +14,15 @@ export type User = {
   name: string
   email: string
   email_verified_at: string | null
+  is_admin: boolean
+  private_account: boolean
   created_at: string
 }
 
 interface UserContextValue {
   user: User | null
   loading: boolean
+  setUser: (user: User | null) => void
 }
 
 // Module-level cache — survives component remounts (navigation, StrictMode)
@@ -66,7 +69,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <UserContext.Provider value={{ user, loading }}>
+    <UserContext.Provider
+      value={{
+        user,
+        loading,
+        setUser: (nextUser) => {
+          _cachedUser = nextUser
+          setUser(nextUser)
+        },
+      }}
+    >
       {children}
     </UserContext.Provider>
   )

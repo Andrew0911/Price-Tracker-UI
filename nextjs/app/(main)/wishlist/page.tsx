@@ -368,7 +368,7 @@ export default function Wishlist() {
       </div>
 
       {/* Grid */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-6">
+      <div className="mr-2 flex-1 overflow-y-auto px-4 pr-6 md:mr-3 md:px-6 md:pr-8 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
         {loading ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: perPage > 12 ? 12 : perPage }).map((_, i) => (
@@ -477,12 +477,77 @@ export default function Wishlist() {
 
       {/* Pagination */}
       {!loading && total > 0 && (
-        <div className="flex shrink-0 flex-col flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3 md:flex-row md:gap-4 md:px-6 md:py-4">
-          {/* Per page */}
-          <div className="flex w-full items-center gap-2 text-xs text-muted-foreground md:w-auto md:text-sm">
-            <span className="hidden md:inline">Products per page:</span>
-            <span className="md:hidden">Per page:</span>
-            <div className="flex gap-1">
+        <div className="shrink-0 border-t border-border px-4 py-3 md:px-6 md:py-4">
+          <div className="flex items-center justify-between gap-3 md:hidden">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>Per page:</span>
+              <div className="flex gap-1">
+                {PER_PAGE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => handlePerPageChange(opt)}
+                    className={`rounded-lg px-2 py-1 text-[11px] font-medium transition-colors ${
+                      perPage === opt
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {lastPage > 1 && (
+              <div className="flex items-center gap-1 overflow-x-auto">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 shrink-0 p-0"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  <ChevronLeft className="size-4" />
+                </Button>
+
+                {visiblePages.map((p, i) =>
+                  p === "â€¦" ? (
+                    <span
+                      key={`ellipsis-mobile-${i}`}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center text-xs text-muted-foreground"
+                    >
+                      â€¦
+                    </span>
+                  ) : (
+                    <Button
+                      key={`mobile-${p}`}
+                      variant={p === page ? "default" : "outline"}
+                      size="sm"
+                      className="h-9 w-9 shrink-0 p-0 text-sm"
+                      onClick={() => setPage(p as number)}
+                    >
+                      {p}
+                    </Button>
+                  )
+                )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 shrink-0 p-0"
+                  onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
+                  disabled={page === lastPage}
+                >
+                  <ChevronRight className="size-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <div className="hidden items-center justify-between gap-4 md:flex">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Products per page:</span>
+              <div className="flex gap-1">
               {PER_PAGE_OPTIONS.map((opt) => (
                 <button
                   key={opt}
@@ -497,11 +562,10 @@ export default function Wishlist() {
                 </button>
               ))}
             </div>
-          </div>
+            </div>
 
-          {/* Pages */}
-          {lastPage > 1 && (
-            <div className="flex w-full items-center gap-1 overflow-x-auto md:w-auto">
+            {lastPage > 1 && (
+              <div className="flex items-center gap-1">
               <Button
                 variant="outline"
                 size="sm"
@@ -542,8 +606,9 @@ export default function Wishlist() {
               >
                 <ChevronRight className="size-4" />
               </Button>
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
