@@ -57,6 +57,7 @@ export default function ForgotPasswordPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="text-base md:text-sm"
             />
           </div>
           <Button type="submit" className="w-full" size="lg" disabled={loading}>

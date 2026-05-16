@@ -27,7 +27,6 @@ import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
 import {
   Popover,
-  PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
@@ -311,12 +310,13 @@ export default function Wishlist() {
                   <p className="px-3 pt-2.5 pb-1 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
                     Products
                   </p>
-                  {suggestions.slice(0, 5).map((product) => (
+                  {suggestions.slice(0, 5).map((product, i) => (
                     <Link
                       key={product.id}
                       href={`/wishlist/${product.id}`}
                       onClick={() => setSearchFocused(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-accent hover:text-chart-3"
+                      className="flex animate-in items-center gap-3 px-3 py-2.5 transition-colors duration-200 fill-mode-both fade-in slide-in-from-top-1 hover:bg-accent hover:text-chart-3"
+                      style={{ animationDelay: `${i * 40}ms` }}
                     >
                       {product.image_url ? (
                         <img
@@ -630,8 +630,8 @@ export default function Wishlist() {
                     }
                   }}
                 >
-                  <PopoverAnchor asChild>
-                    <div className="relative w-full">
+                  <PopoverTrigger asChild>
+                    <button type="button" className="relative w-full text-left">
                       <Input
                         value={
                           storeDraft
@@ -641,23 +641,14 @@ export default function Wishlist() {
                         }
                         placeholder="All stores"
                         readOnly
-                        onClick={() =>
-                          storePopoverOpen
-                            ? closeStorePopover()
-                            : openStorePopover()
-                        }
-                        className="cursor-pointer pr-8 text-base md:text-sm"
+                        tabIndex={-1}
+                        className="pointer-events-none cursor-pointer pr-8 text-base md:text-sm"
                       />
                       <ChevronDown
-                        className="absolute top-1/2 right-2.5 size-4 -translate-y-1/2 cursor-pointer text-muted-foreground"
-                        onClick={() =>
-                          storePopoverOpen
-                            ? closeStorePopover()
-                            : openStorePopover()
-                        }
+                        className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-muted-foreground"
                       />
-                    </div>
-                  </PopoverAnchor>
+                    </button>
+                  </PopoverTrigger>
                   <PopoverContent
                     className="w-[var(--radix-popover-trigger-width)] p-1.5"
                     align="start"

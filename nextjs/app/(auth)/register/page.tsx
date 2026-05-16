@@ -144,6 +144,7 @@ export default function RegisterPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                className="text-base md:text-sm"
               />
             </div>
 
@@ -157,6 +158,7 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="text-base md:text-sm"
               />
             </div>
 
@@ -169,7 +171,7 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   autoComplete="new-password"
-                  className="pr-10"
+                  className="pr-10 text-base md:text-sm"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -199,7 +201,7 @@ export default function RegisterPage() {
                   type={showConfirm ? "text" : "password"}
                   placeholder="Password Confirmation"
                   autoComplete="new-password"
-                  className="pr-10"
+                  className="pr-10 text-base md:text-sm"
                   required
                   value={passwordConfirmation}
                   onChange={(e) => setPasswordConfirmation(e.target.value)}

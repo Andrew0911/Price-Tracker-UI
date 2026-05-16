@@ -49,6 +49,8 @@ export default function UsersPage() {
   const [perPage, setPerPage] = useState(12)
   const [total, setTotal] = useState(0)
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
+  const [detailsUser, setDetailsUser] = useState<AdminUser | null>(null)
+  const [detailsClosing, setDetailsClosing] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null)
   const [deleting, setDeleting] = useState(false)
 
@@ -82,6 +84,13 @@ export default function UsersPage() {
     const timer = setTimeout(() => loadUsers(query.trim(), page, perPage), 250)
     return () => clearTimeout(timer)
   }, [query, page, perPage])
+
+  useEffect(() => {
+    if (selectedUser) {
+      setDetailsUser(selectedUser)
+      setDetailsClosing(false)
+    }
+  }, [selectedUser])
 
   const visiblePages = useMemo(() => {
     const pageNumbers = Array.from({ length: lastPage }, (_, i) => i + 1)
@@ -122,6 +131,15 @@ export default function UsersPage() {
     } finally {
       setDeleting(false)
     }
+  }
+
+  function closeDesktopDetails() {
+    setDetailsClosing(true)
+    setSelectedUser(null)
+    window.setTimeout(() => {
+      setDetailsUser(null)
+      setDetailsClosing(false)
+    }, 300)
   }
 
   function UserDetailsContent({
@@ -219,7 +237,11 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-4 overflow-hidden px-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div
+        className={`grid min-h-0 flex-1 gap-4 overflow-hidden px-6 transition-[grid-template-columns] duration-300 ease-out ${
+          detailsUser ? "lg:grid-cols-[minmax(0,1fr)_360px]" : "lg:grid-cols-1"
+        }`}
+      >
         <div className="flex min-h-0 flex-col overflow-hidden rounded-3xl bg-card p-4 shadow-sm ring-1 ring-foreground/5">
           <div className="mb-4 text-sm text-muted-foreground">
             {total} user{total === 1 ? "" : "s"}
@@ -229,15 +251,16 @@ export default function UsersPage() {
               ? Array.from({ length: 5 }).map((_, i) => (
                   <Skeleton key={i} className="h-20 w-full rounded-2xl" />
                 ))
-              : users.map((item) => (
+              : users.map((item, i) => (
                   <button
                     key={item.id}
                     onClick={() => setSelectedUser(item)}
-                    className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition-colors ${
+                    className={`flex w-full animate-in items-center justify-between rounded-2xl border p-4 text-left transition-colors duration-300 fill-mode-both fade-in slide-in-from-bottom-3 ${
                       selectedUser?.id === item.id
                         ? "border-primary bg-primary/5"
                         : "border-border hover:bg-muted/40"
                     }`}
+                    style={{ animationDelay: `${i * 50}ms` }}
                   >
                     <div className="min-w-0">
                       <p className="truncate font-semibold">{item.name}</p>
@@ -260,15 +283,26 @@ export default function UsersPage() {
           </div>
         </div>
 
-        <div className="hidden min-h-0 overflow-hidden rounded-3xl bg-card p-5 shadow-sm ring-1 ring-foreground/5 lg:block">
-          {!selectedUser ? (
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              Select a user to view details.
+        {detailsUser && (
+          <div
+            className={`hidden min-h-0 overflow-hidden rounded-3xl bg-card p-5 shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both lg:block ${
+              detailsClosing
+                ? "animate-out fade-out slide-out-to-right-6"
+                : "animate-in fade-in slide-in-from-right-6"
+            }`}
+          >
+            <div className="relative h-full">
+              <button
+                onClick={closeDesktopDetails}
+                className="absolute top-0 right-0 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Close user details"
+              >
+                <X className="size-4" />
+              </button>
+              <UserDetailsContent target={detailsUser} />
             </div>
-          ) : (
-            <UserDetailsContent target={selectedUser} />
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {!loading && total > 0 && (
@@ -385,11 +419,11 @@ export default function UsersPage() {
 
       {selectedUser && (
         <div
-          className="fixed inset-0 z-40 flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 flex animate-in items-center justify-center bg-black/45 p-4 backdrop-blur-sm fade-in-0 lg:hidden"
           onClick={() => setSelectedUser(null)}
         >
           <div
-            className="w-full max-w-sm rounded-3xl bg-card p-5 shadow-2xl ring-1 ring-foreground/10"
+            className="w-full max-w-sm animate-in rounded-3xl bg-card p-5 shadow-2xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-bottom-2"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">

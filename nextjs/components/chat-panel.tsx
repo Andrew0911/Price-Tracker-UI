@@ -277,11 +277,12 @@ function ProductPicker({
             {search ? `No results for "${search}"` : "Your wishlist is empty"}
           </p>
         ) : (
-          filtered.map((p) => (
+          filtered.map((p, i) => (
             <button
               key={p.id}
               onClick={() => onSelect(p)}
-              className="mb-1.5 flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors hover:bg-accent"
+              className="mb-1.5 flex w-full animate-in items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors duration-250 fill-mode-both fade-in slide-in-from-bottom-2 hover:bg-accent"
+              style={{ animationDelay: `${i * 45}ms` }}
             >
               {p.image_url ? (
                 <img

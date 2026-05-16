@@ -220,11 +220,12 @@ export default function Dashboard() {
             </div>
           ) : movementRows.length ? (
             <div className="space-y-3">
-              {movementRows.map((product) => (
+              {movementRows.map((product, i) => (
                 <Link
                   key={product.id}
                   href={`/wishlist/${product.id}`}
-                  className="flex flex-col gap-4 rounded-2xl bg-muted/40 p-4 transition-colors hover:bg-muted/65 md:flex-row md:items-center md:justify-between"
+                  className="flex animate-in flex-col gap-4 rounded-2xl bg-muted/40 p-4 transition-colors duration-300 fill-mode-both fade-in slide-in-from-bottom-3 hover:bg-muted/65 md:flex-row md:items-center md:justify-between"
+                  style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     {product.image_url ? (
@@ -354,10 +355,11 @@ export default function Dashboard() {
             </div>
           ) : stats?.store_breakdown.length ? (
             <div className="space-y-3">
-              {stats.store_breakdown.map((item) => (
+              {stats.store_breakdown.map((item, i) => (
                 <div
                   key={item.store}
-                  className="flex items-center justify-between rounded-2xl bg-muted/40 px-4 py-3"
+                  className="flex animate-in items-center justify-between rounded-2xl bg-muted/40 px-4 py-3 duration-300 fill-mode-both fade-in slide-in-from-bottom-3"
+                  style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <span className="text-sm font-medium capitalize">
                     {item.store}

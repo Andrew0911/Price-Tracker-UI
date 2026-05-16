@@ -99,7 +99,7 @@ function ResetPasswordForm() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pr-10"
+                className="pr-10 text-base md:text-sm"
               />
               <button
                 type="button"
@@ -125,7 +125,7 @@ function ResetPasswordForm() {
                 required
                 value={passwordConfirmation}
                 onChange={(e) => setPasswordConfirmation(e.target.value)}
-                className="pr-10"
+                className="pr-10 text-base md:text-sm"
               />
               <button
                 type="button"

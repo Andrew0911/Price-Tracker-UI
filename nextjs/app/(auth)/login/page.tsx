@@ -148,6 +148,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="text-base md:text-sm"
                 />
               </div>
 
@@ -168,7 +169,7 @@ export default function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     autoComplete="current-password"
-                    className="pr-10"
+                    className="pr-10 text-base md:text-sm"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

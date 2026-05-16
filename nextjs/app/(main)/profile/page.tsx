@@ -9,13 +9,18 @@ function ProfileField({
   icon: Icon,
   label,
   value,
+  index = 0,
 }: {
   icon: React.ElementType
   label: string
   value: string
+  index?: number
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-border px-5 py-4">
+    <div
+      className="flex animate-in items-center gap-4 rounded-xl border border-border px-5 py-4 duration-300 fill-mode-both fade-in slide-in-from-bottom-3"
+      style={{ animationDelay: `${index * 75}ms` }}
+    >
       <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
         <Icon className="size-4 text-muted-foreground" />
       </div>
@@ -55,7 +60,7 @@ export default function ProfilePage() {
             </>
           ) : user ? (
             <>
-              <ProfileField icon={Mail} label="Email" value={user.email} />
+              <ProfileField icon={Mail} label="Email" value={user.email} index={0} />
               <ProfileField
                 icon={BadgeCheck}
                 label="Email verified"
@@ -64,11 +69,13 @@ export default function ProfilePage() {
                     ? formatDateTime(user.email_verified_at)
                     : "Not verified"
                 }
+                index={1}
               />
               <ProfileField
                 icon={CalendarDays}
                 label="Member since"
                 value={formatDateTime(user.created_at)}
+                index={2}
               />
             </>
           ) : null}
