@@ -70,6 +70,11 @@ type ProductResponse = {
   data: Product
 }
 
+type ChartPoint = {
+  checkedAt: string
+  price: number
+}
+
 const chartConfig: ChartConfig = {
   price: {
     label: "Price",
