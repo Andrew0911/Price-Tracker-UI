@@ -118,14 +118,14 @@ export function AppSidebar() {
                         <img
                           src="/images/price-pulse-logo.png"
                           alt="PricePulse"
-                          className="size-10 object-contain"
+                          className="size-9 object-contain sm:size-10"
                         />
                       </div>
                       {/* PanelLeft — only shown on hover when collapsed */}
                       <PanelLeft className="absolute !size-5 scale-75 opacity-0 transition-all group-data-[collapsible=icon]:group-hover/logo:scale-100 group-data-[collapsible=icon]:group-hover/logo:opacity-100" />
-                      <div className="flex flex-col gap-0 leading-none transition-colors group-data-[collapsible=icon]:hidden">
-                        <span className="text-base">Price Pulse</span>
-                        <span className="text-sm text-muted-foreground">
+                      <div className="flex min-w-0 flex-col gap-0 leading-none transition-colors group-data-[collapsible=icon]:hidden">
+                        <span className="truncate text-sm font-semibold sm:text-base">Price Pulse</span>
+                        <span className="hidden text-sm text-muted-foreground sm:block">
                           Shop smarter
                         </span>
                       </div>
@@ -228,7 +228,7 @@ export function AppSidebar() {
                   side="right"
                   align="end"
                   sideOffset={isMobile ? 14 : 15}
-                  className="w-40 rounded-lg text-base sm:w-56"
+                  className="w-36 min-w-0 rounded-lg text-sm sm:w-56 sm:min-w-48 sm:text-base"
                 >
                   <DropdownMenuItem
                     className="cursor-pointer py-2 text-base"
@@ -270,3 +270,8 @@ export function AppSidebar() {
     </TooltipProvider>
   )
 }
+
+
+
+
+

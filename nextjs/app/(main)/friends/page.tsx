@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useCallback, useEffect, useState } from "react"
 import {
@@ -13,6 +13,7 @@ import {
   Sparkles,
   Loader2,
   MessageCircle,
+  Info,
 } from "lucide-react"
 import { api } from "@/lib/api"
 import { Input } from "@/components/ui/input"
@@ -94,7 +95,7 @@ function UserRow({
     >
       <UserAvatar name={user.name} />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="truncate font-semibold">{user.name}</span>
+        <span className="truncate font-semibold no-underline [text-decoration:none] [&_a]:no-underline [&_a]:[text-decoration:none]">{user.name}</span>
         <span className="truncate text-sm text-muted-foreground">
           {user.email}
         </span>
@@ -378,8 +379,39 @@ export default function FriendsPage() {
       </div>
       {/* Tabs + Search */}
       <div className="flex shrink-0 flex-col gap-3 px-6 pb-5">
-        {/* Tabs */}
-        <div className="flex gap-1.5 rounded-2xl bg-muted/70 p-1.5 ring-1 ring-foreground/5">
+        {/* Mobile tabs */}
+        <div className="grid grid-cols-3 rounded-2xl bg-muted/70 p-1 ring-1 ring-foreground/5 sm:hidden">
+          {tabConfig.map(({ id, label, count }) => (
+            <button
+              key={id}
+              onClick={() => {
+                setTab(id)
+                setQuery("")
+              }}
+              className={`flex items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                tab === id
+                  ? "bg-card text-foreground shadow-sm ring-1 ring-foreground/5"
+                  : "text-muted-foreground"
+              }`}
+            >
+              <span>{label}</span>
+              {count !== undefined && (
+                <span
+                  className={`flex items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] leading-none font-bold ${
+                    id === "requests"
+                      ? "bg-amber-500 text-white"
+                      : "bg-primary text-primary-foreground"
+                  }`}
+                >
+                  {count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Desktop tabs */}
+        <div className="hidden gap-1.5 rounded-2xl bg-muted/70 p-1.5 ring-1 ring-foreground/5 sm:flex">
           {tabConfig.map(({ id, label, icon: Icon, count }) => (
             <button
               key={id}
@@ -410,6 +442,22 @@ export default function FriendsPage() {
           ))}
         </div>
 
+        {tab === "discover" && (
+          <div className="flex items-start gap-3 rounded-2xl border border-border/70 bg-card px-4 py-3 shadow-sm ring-1 ring-foreground/5">
+            <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Info className="size-4" />
+            </div>
+            <div className="text-sm leading-5">
+              <p className="font-medium text-foreground">
+                Discover shows friends and public users.
+              </p>
+              <p className="text-muted-foreground">
+                To find any user, search by their exact email address.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Search */}
         <div className="relative">
           <Search className="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground" />
@@ -418,7 +466,7 @@ export default function FriendsPage() {
             onChange={(e) => setQuery((e.target as HTMLInputElement).value)}
             placeholder={
               tab === "discover"
-                ? "Search users..."
+                ? "Search by exact email..."
                 : tab === "friends"
                   ? "Filter friends..."
                   : "Filter requests..."
@@ -633,3 +681,16 @@ export default function FriendsPage() {
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

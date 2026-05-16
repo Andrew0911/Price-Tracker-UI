@@ -368,9 +368,9 @@ export default function Wishlist() {
       </div>
 
       {/* Grid */}
-      <div className="mr-2 flex-1 overflow-y-auto px-4 pr-6 md:mr-3 md:px-6 md:pr-8 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-4 md:mr-3 md:px-6 md:pr-8">
         {loading ? (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="mx-auto grid w-full max-w-sm grid-cols-1 gap-3 sm:max-w-none sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: perPage > 12 ? 12 : perPage }).map((_, i) => (
               <div
                 key={i}
@@ -394,7 +394,7 @@ export default function Wishlist() {
             <p className="text-base">Your wishlist is empty.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="mx-auto grid w-full max-w-sm grid-cols-1 gap-3 sm:max-w-none sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product, i) => (
               <Link
                 key={product.id}
@@ -499,7 +499,7 @@ export default function Wishlist() {
             </div>
 
             {lastPage > 1 && (
-              <div className="flex items-center gap-1 overflow-x-auto">
+              <div className="flex items-center gap-1">
                 <Button
                   variant="outline"
                   size="sm"
@@ -510,26 +510,9 @@ export default function Wishlist() {
                   <ChevronLeft className="size-4" />
                 </Button>
 
-                {visiblePages.map((p, i) =>
-                  p === "â€¦" ? (
-                    <span
-                      key={`ellipsis-mobile-${i}`}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center text-xs text-muted-foreground"
-                    >
-                      â€¦
-                    </span>
-                  ) : (
-                    <Button
-                      key={`mobile-${p}`}
-                      variant={p === page ? "default" : "outline"}
-                      size="sm"
-                      className="h-9 w-9 shrink-0 p-0 text-sm"
-                      onClick={() => setPage(p as number)}
-                    >
-                      {p}
-                    </Button>
-                  )
-                )}
+                <div className="flex h-9 min-w-9 items-center justify-center rounded-full bg-primary px-3 text-sm font-semibold text-primary-foreground">
+                  {page}
+                </div>
 
                 <Button
                   variant="outline"
@@ -566,46 +549,29 @@ export default function Wishlist() {
 
             {lastPage > 1 && (
               <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                <ChevronLeft className="size-4" />
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  <ChevronLeft className="size-4" />
+                </Button>
 
-              {visiblePages.map((p, i) =>
-                p === "…" ? (
-                  <span
-                    key={`ellipsis-${i}`}
-                    className="flex h-8 w-8 items-center justify-center text-xs text-muted-foreground"
-                  >
-                    …
-                  </span>
-                ) : (
-                  <Button
-                    key={p}
-                    variant={p === page ? "default" : "outline"}
-                    size="sm"
-                    className="h-8 w-8 p-0 text-xs"
-                    onClick={() => setPage(p as number)}
-                  >
-                    {p}
-                  </Button>
-                )
-              )}
+                <div className="flex h-8 min-w-8 items-center justify-center rounded-full bg-primary px-3 text-xs font-semibold text-primary-foreground">
+                  {page}
+                </div>
 
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
-                disabled={page === lastPage}
-              >
-                <ChevronRight className="size-4" />
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
+                  disabled={page === lastPage}
+                >
+                  <ChevronRight className="size-4" />
+                </Button>
               </div>
             )}
           </div>
@@ -854,3 +820,6 @@ export default function Wishlist() {
     </div>
   )
 }
+
+
+

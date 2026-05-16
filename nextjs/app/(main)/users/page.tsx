@@ -223,7 +223,7 @@ export default function UsersPage() {
           <div className="mb-4 text-sm text-muted-foreground">
             {total} user{total === 1 ? "" : "s"}
           </div>
-          <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
+          <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-0 md:pr-2 md:[&::-webkit-scrollbar]:w-1.5 md:[&::-webkit-scrollbar-thumb]:rounded-full md:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 md:hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 md:[&::-webkit-scrollbar-track]:rounded-full md:[&::-webkit-scrollbar-track]:bg-transparent">
             {loading
               ? Array.from({ length: 5 }).map((_, i) => (
                   <Skeleton key={i} className="h-20 w-full rounded-2xl" />
@@ -296,7 +296,7 @@ export default function UsersPage() {
             </div>
 
             {lastPage > 1 && (
-              <div className="flex items-center gap-1 overflow-x-auto">
+              <div className="flex items-center gap-1">
                 <Button
                   variant="outline"
                   size="icon"
@@ -307,26 +307,9 @@ export default function UsersPage() {
                   <ChevronLeft className="size-4" />
                 </Button>
 
-                {visiblePages.map((item, index) =>
-                  typeof item === "string" ? (
-                    <span
-                      key={`ellipsis-mobile-${index}`}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center text-xs text-muted-foreground"
-                    >
-                      â€¦
-                    </span>
-                  ) : (
-                    <Button
-                      key={`mobile-${item}`}
-                      variant={item === page ? "default" : "outline"}
-                      size="icon"
-                      className="h-9 w-9 shrink-0 p-0 text-sm"
-                      onClick={() => setPage(item)}
-                    >
-                      {item}
-                    </Button>
-                  )
-                )}
+                <div className="flex h-9 min-w-9 items-center justify-center rounded-full bg-primary px-3 text-sm font-semibold text-primary-foreground">
+                  {page}
+                </div>
 
                 <Button
                   variant="outline"
@@ -368,48 +351,31 @@ export default function UsersPage() {
 
             {lastPage > 1 && (
               <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 p-0"
-                onClick={() => setPage((current) => Math.max(1, current - 1))}
-                disabled={page === 1}
-              >
-                <ChevronLeft className="size-4" />
-              </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  disabled={page === 1}
+                >
+                  <ChevronLeft className="size-4" />
+                </Button>
 
-              {visiblePages.map((item, index) =>
-                typeof item === "string" ? (
-                  <span
-                    key={`ellipsis-${index}`}
-                    className="flex h-8 w-8 items-center justify-center text-xs text-muted-foreground"
-                  >
-                    …
-                  </span>
-                ) : (
-                  <Button
-                    key={item}
-                    variant={item === page ? "default" : "outline"}
-                    size="icon"
-                    className="h-8 w-8 p-0 text-xs"
-                    onClick={() => setPage(item)}
-                  >
-                    {item}
-                  </Button>
-                )
-              )}
+                <div className="flex h-8 min-w-8 items-center justify-center rounded-full bg-primary px-3 text-xs font-semibold text-primary-foreground">
+                  {page}
+                </div>
 
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 p-0"
-                onClick={() =>
-                  setPage((current) => Math.min(lastPage, current + 1))
-                }
-                disabled={page === lastPage}
-              >
-                <ChevronRight className="size-4" />
-              </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 p-0"
+                  onClick={() =>
+                    setPage((current) => Math.min(lastPage, current + 1))
+                  }
+                  disabled={page === lastPage}
+                >
+                  <ChevronRight className="size-4" />
+                </Button>
               </div>
             )}
           </div>
@@ -489,3 +455,6 @@ export default function UsersPage() {
     </div>
   )
 }
+
+
+

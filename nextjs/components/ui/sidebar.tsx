@@ -198,7 +198,7 @@ function Sidebar({
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <div className="flex h-full w-full flex-col pt-[calc(env(safe-area-inset-top)+0.75rem)]">{children}</div>
         </SheetContent>
       </Sheet>
     )
@@ -703,3 +703,4 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+

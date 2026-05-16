@@ -111,7 +111,7 @@ export default function Dashboard() {
   }, [movementView, stats])
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto">
+    <div className="no-scrollbar flex h-full flex-col overflow-y-auto">
       {/* Header */}
       <div className="relative mb-3 shrink-0 overflow-hidden px-6 pt-6 pb-5">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/3 to-transparent" />
@@ -275,17 +275,10 @@ export default function Dashboard() {
                       }`}
                     >
                       {movementView === "drops" ? "-" : "+"}
-                      {"drop_amount" in product
-                        ? product.drop_amount.toFixed(2)
-                        : product.increase_amount.toFixed(2)}{" "}
-                      <span className="opacity-75">
-                        (
-                        {movementView === "drops" ? "-" : "+"}
-                        {"drop_percent" in product
-                          ? product.drop_percent.toFixed(2)
-                          : product.increase_percent.toFixed(2)}
-                        %)
-                      </span>
+                      {"drop_percent" in product
+                        ? product.drop_percent.toFixed(2)
+                        : product.increase_percent.toFixed(2)}
+                      %
                     </div>
                   </div>
 
@@ -385,3 +378,6 @@ export default function Dashboard() {
     </div>
   )
 }
+
+
+
