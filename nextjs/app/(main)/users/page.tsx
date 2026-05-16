@@ -214,7 +214,7 @@ export default function UsersPage() {
               setPage(1)
             }}
             placeholder="Search users by name or email..."
-            className="h-12 rounded-2xl bg-muted/50 pl-11"
+            className="h-12 rounded-2xl bg-muted/50 pl-11 text-base md:text-sm"
           />
         </div>
       </div>

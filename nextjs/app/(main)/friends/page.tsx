@@ -487,7 +487,7 @@ export default function FriendsPage() {
                   ? "Filter friends..."
                   : "Filter requests..."
             }
-            className="h-12 rounded-2xl bg-muted/50 pl-11 text-sm focus-visible:border-primary focus-visible:ring-primary/30"
+            className="h-12 rounded-2xl bg-muted/50 pl-11 text-base focus-visible:border-primary focus-visible:ring-primary/30 md:text-sm"
           />
         </div>
       </div>

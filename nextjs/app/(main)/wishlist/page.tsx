@@ -273,7 +273,7 @@ export default function Wishlist() {
                 <Input
                   value={searchQuery}
                   placeholder="Search products..."
-                  className="pr-9 pl-9"
+                  className="pr-9 pl-9 text-base md:text-sm"
                   onFocus={() => setSearchFocused(true)}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -639,7 +639,7 @@ export default function Wishlist() {
                         onKeyDown={(e) => {
                           if (e.key === "Escape") setStorePopoverOpen(false)
                         }}
-                        className="pr-8"
+                        className="pr-8 text-base md:text-sm"
                       />
                       <ChevronDown
                         className="absolute top-1/2 right-2.5 size-4 -translate-y-1/2 cursor-pointer text-muted-foreground"
@@ -793,6 +793,7 @@ export default function Wishlist() {
                   onChange={(e) => setUrl(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                   disabled={adding}
+                  className="text-base md:text-sm"
                 />
               </div>
 
