@@ -77,6 +77,21 @@ const chartConfig: ChartConfig = {
   },
 }
 
+function renderFilledPriceDot({ cx, cy }: { cx?: number; cy?: number }) {
+  if (cx === undefined || cy === undefined) return null
+
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      r={5}
+      fill="var(--color-chart-3)"
+      stroke="var(--color-chart-3)"
+      strokeWidth={2}
+    />
+  )
+}
+
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -202,9 +217,9 @@ export default function ProductDetail() {
     }
   }
 
-  const chartData =
+  const chartData: ChartPoint[] =
     product?.price_history.map((h) => ({
-      date: formatDate(h.checked_at),
+      checkedAt: h.checked_at,
       price: parseFloat(h.price),
     })) ?? []
 
@@ -213,7 +228,10 @@ export default function ProductDetail() {
     const currentPrice = parseFloat(product.current_price)
     const last = chartData[chartData.length - 1]
     if (!last || last.price !== currentPrice) {
-      chartData.push({ date: "Now", price: currentPrice })
+      chartData.push({
+        checkedAt: product.last_checked_at ?? new Date().toISOString(),
+        price: currentPrice,
+      })
     }
   }
 
@@ -497,11 +515,12 @@ export default function ProductDetail() {
                         strokeOpacity={0.06}
                       />
                       <XAxis
-                        dataKey="date"
+                        dataKey="checkedAt"
                         tickLine={false}
                         axisLine={false}
                         tick={{ fontSize: 11 }}
                         interval="preserveStartEnd"
+                        tickFormatter={formatDate}
                       />
                       <YAxis
                         tickLine={false}
@@ -513,7 +532,12 @@ export default function ProductDetail() {
                           (max: number) => Math.ceil(max * 1.03),
                         ]}
                       />
-                      <Tooltip content={<ChartTooltipContent />} />
+                      <Tooltip
+                        labelFormatter={(value) =>
+                          formatDateTime(String(value))
+                        }
+                        content={<ChartTooltipContent />}
+                      />
                       {activeAlert && (
                         <ReferenceLine
                           y={parseFloat(activeAlert.target_price)}
@@ -534,7 +558,7 @@ export default function ProductDetail() {
                         stroke="var(--color-chart-3)"
                         strokeWidth={2.5}
                         fill="url(#priceGrad)"
-                        dot={false}
+                        dot={renderFilledPriceDot}
                         activeDot={{
                           r: 5,
                           strokeWidth: 0,
@@ -543,11 +567,11 @@ export default function ProductDetail() {
                       />
                       {currentDot && (
                         <ReferenceDot
-                          x={currentDot.date}
+                          x={currentDot.checkedAt}
                           y={currentDot.price}
                           r={5}
                           fill="var(--color-chart-3)"
-                          stroke="var(--background)"
+                          stroke="var(--color-chart-3)"
                           strokeWidth={2}
                         />
                       )}

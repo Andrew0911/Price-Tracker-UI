@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 import {
   ShoppingCart,
   TrendingDown,
@@ -220,9 +221,10 @@ export default function Dashboard() {
           ) : movementRows.length ? (
             <div className="space-y-3">
               {movementRows.map((product) => (
-                <div
+                <Link
                   key={product.id}
-                  className="flex flex-col gap-4 rounded-2xl bg-muted/40 p-4 md:flex-row md:items-center md:justify-between"
+                  href={`/wishlist/${product.id}`}
+                  className="flex flex-col gap-4 rounded-2xl bg-muted/40 p-4 transition-colors hover:bg-muted/65 md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     {product.image_url ? (
@@ -328,7 +330,7 @@ export default function Dashboard() {
                       </span>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (
