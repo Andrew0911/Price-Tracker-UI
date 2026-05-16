@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
-      <div className="w-full max-w-sm space-y-8">
+      <div className="w-full max-w-sm animate-in space-y-8 duration-500 fade-in slide-in-from-bottom-4">
         <div className="space-y-2 text-center">
           <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
             <Mail className="size-5 text-primary" />
