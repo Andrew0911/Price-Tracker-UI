@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 const AUTH_COOKIE = "auth_token"
 
 // Paths that don't require authentication
-const PUBLIC_PATHS = ["/login", "/register"]
+const PUBLIC_PATHS = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email"]
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
