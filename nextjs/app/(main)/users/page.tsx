@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import {
   ShieldUser,
+  ShieldCheck,
   Search,
   Trash2,
   X,
@@ -38,6 +39,10 @@ type UsersResponse = {
 
 const PER_PAGE_OPTIONS = [6, 12, 24, 48]
 
+function errorMessage(err: unknown, fallback: string) {
+  return err instanceof Error ? err.message : fallback
+}
+
 export default function UsersPage() {
   const { user } = useUser()
   const { notify } = useNotification()
@@ -53,6 +58,8 @@ export default function UsersPage() {
   const [detailsClosing, setDetailsClosing] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [promoteTarget, setPromoteTarget] = useState<AdminUser | null>(null)
+  const [promoting, setPromoting] = useState(false)
 
   async function loadUsers(search = "", targetPage = page, targetPerPage = perPage) {
     setLoading(true)
@@ -70,10 +77,10 @@ export default function UsersPage() {
       setLastPage(payload.lastPage ?? 1)
       setPerPage(payload.perPage ?? targetPerPage)
       setTotal(payload.total ?? 0)
-    } catch (err: any) {
+    } catch (err: unknown) {
       notify({
         type: "error",
-        message: err?.message ?? "Could not load users.",
+        message: errorMessage(err, "Could not load users."),
       })
     } finally {
       setLoading(false)
@@ -123,13 +130,48 @@ export default function UsersPage() {
       setDeleteTarget(null)
       const nextPage = users.length === 1 && page > 1 ? page - 1 : page
       await loadUsers(query.trim(), nextPage, perPage)
-    } catch (err: any) {
+    } catch (err: unknown) {
       notify({
         type: "error",
-        message: err?.message ?? "Could not delete user.",
+        message: errorMessage(err, "Could not delete user."),
       })
     } finally {
       setDeleting(false)
+    }
+  }
+
+  async function handlePromoteUser() {
+    if (!promoteTarget) return
+    setPromoting(true)
+    try {
+      const res = await api.patch<never>(
+        `/admin/users/${promoteTarget.id}/promote`
+      )
+      const promoted = (res as unknown as { data?: AdminUser }).data
+      const nextUser = promoted ?? { ...promoteTarget, is_admin: true }
+
+      setUsers((current) =>
+        current.map((item) => (item.id === nextUser.id ? nextUser : item))
+      )
+      if (selectedUser?.id === nextUser.id) {
+        setSelectedUser(nextUser)
+      }
+      if (detailsUser?.id === nextUser.id) {
+        setDetailsUser(nextUser)
+      }
+      notify({
+        type: "success",
+        message: `${nextUser.name} is now an admin`,
+      })
+      setPromoteTarget(null)
+      await loadUsers(query.trim(), page, perPage)
+    } catch (err: unknown) {
+      notify({
+        type: "error",
+        message: errorMessage(err, "Could not promote user."),
+      })
+    } finally {
+      setPromoting(false)
     }
   }
 
@@ -181,7 +223,18 @@ export default function UsersPage() {
           </div>
         </div>
 
-        <div className={mobile ? "mt-5" : "mt-auto pt-5"}>
+        <div className={mobile ? "mt-5 space-y-2" : "mt-auto space-y-2 pt-5"}>
+          {!target.is_admin && (
+            <Button
+              variant="default"
+              className="w-full gap-2"
+              disabled={target.id === user?.id}
+              onClick={() => setPromoteTarget(target)}
+            >
+              <ShieldCheck className="size-4" />
+              Make admin
+            </Button>
+          )}
           <Button
             variant="destructive"
             className="w-full gap-2"
@@ -481,6 +534,54 @@ export default function UsersPage() {
               >
                 {deleting && <Loader2 className="size-4 animate-spin" />}
                 {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {promoteTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0"
+          onClick={() => setPromoteTarget(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Make admin</h2>
+              <button
+                onClick={() => setPromoteTarget(null)}
+                disabled={promoting}
+                className="rounded-lg p-1 text-muted-foreground hover:bg-muted"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to make{" "}
+              <span className="font-semibold text-foreground">
+                {promoteTarget.name}
+              </span>{" "}
+              an admin? They will lose access to social features like friends and
+              messaging.
+            </p>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setPromoteTarget(null)}
+                disabled={promoting}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handlePromoteUser}
+                disabled={promoting}
+                className="gap-2"
+              >
+                {promoting && <Loader2 className="size-4 animate-spin" />}
+                {promoting ? "Promoting..." : "Make admin"}
               </Button>
             </div>
           </div>
