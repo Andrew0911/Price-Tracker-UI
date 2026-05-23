@@ -3,7 +3,7 @@
 import { User2, Mail, CalendarDays, BadgeCheck } from "lucide-react"
 import { useUser } from "@/lib/user-context"
 import { Skeleton } from "@/components/ui/skeleton"
-import { formatDateTime } from "@/lib/utils"
+import { formatDateTime, getAvatarGradient, getInitials } from "@/lib/utils"
 
 function ProfileField({
   icon: Icon,
@@ -40,8 +40,18 @@ export default function ProfilePage() {
       <div className="w-full max-w-lg space-y-10">
         {/* Avatar + name */}
         <div className="flex flex-col items-center gap-4 text-center">
-          <div className="flex size-28 items-center justify-center rounded-full bg-muted">
-            <User2 className="size-14 text-muted-foreground" />
+          <div
+            className={`flex size-28 items-center justify-center rounded-full ${
+              user
+                ? `bg-gradient-to-br ${getAvatarGradient(user.name)} text-3xl font-bold text-white shadow-lg ring-4 ring-white/20`
+                : "bg-muted"
+            }`}
+          >
+            {user ? (
+              getInitials(user.name)
+            ) : (
+              <User2 className="size-14 text-muted-foreground" />
+            )}
           </div>
           {loading ? (
             <Skeleton className="h-8 w-44" />

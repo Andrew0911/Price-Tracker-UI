@@ -475,10 +475,9 @@ export default function UsersPage() {
                 Cancel
               </Button>
               <Button
-                variant="destructive"
                 onClick={handleDeleteUser}
                 disabled={deleting}
-                className="gap-2"
+                className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
               >
                 {deleting && <Loader2 className="size-4 animate-spin" />}
                 {deleting ? "Deleting..." : "Delete"}

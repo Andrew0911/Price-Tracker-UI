@@ -250,10 +250,10 @@ export default function AccountSettingsPage() {
                     Cancel
                   </Button>
                   <Button
-                    variant="destructive"
                     size="sm"
                     disabled={!deletePassword || deleting}
                     onClick={handleDeleteAccount}
+                    className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
                   >
                     {deleting && (
                       <Loader2 className="mr-1.5 size-3.5 animate-spin" />

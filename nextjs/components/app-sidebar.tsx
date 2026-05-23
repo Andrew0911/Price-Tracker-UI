@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import {
   Sidebar,
   SidebarContent,
@@ -35,17 +35,21 @@ import {
   BadgeCheck,
   Settings,
   LogOut,
+  X,
   ChevronRight,
   Heart,
   Users,
   ShieldUser,
   PanelLeft,
+  Loader2,
 } from "lucide-react"
 import { api, clearAuthToken } from "@/lib/api"
 import { useNotification } from "@/components/notification"
 import { useUser, clearUserCache } from "@/lib/user-context"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { getAvatarGradient, getInitials } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 export function AppSidebar() {
   const router = useRouter()
@@ -54,7 +58,8 @@ export function AppSidebar() {
   const { user } = useUser()
   const { toggleSidebar, state, setOpenMobile } = useSidebar()
   const isMobile = useIsMobile()
-  const [mounted, setMounted] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
   const navItems = user?.is_admin
     ? [
         { title: "Dashboard", icon: LayoutDashboard, url: "dashboard" },
@@ -67,17 +72,22 @@ export function AppSidebar() {
         { title: "Friends", icon: Users, url: "friends" },
       ]
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
   const handleNavClick = () => {
     if (isMobile) {
       setOpenMobile(false)
     }
   }
 
+  const openLogoutConfirm = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+    setShowLogoutConfirm(true)
+  }
+
   async function handleLogout() {
+    if (loggingOut) return
+    setLoggingOut(true)
     try {
       await api.post("/logout")
     } catch {
@@ -87,6 +97,8 @@ export function AppSidebar() {
       clearAuthToken()
       notify({ type: "success", message: "Logout successful" })
       router.push("/login")
+      setLoggingOut(false)
+      setShowLogoutConfirm(false)
     }
   }
 
@@ -186,7 +198,7 @@ export function AppSidebar() {
         <SidebarFooter>
           <SidebarMenu>
             {/* Theme Toggle for Desktop */}
-            {mounted && !isMobile && (
+            {!isMobile && (
               <SidebarMenuItem className="group-data-[state=collapsed]:hidden">
                 <div className="mb-2 flex items-center justify-between rounded-md px-2 py-3 transition-colors hover:bg-sidebar-accent/50">
                   <span className="text-sm text-muted-foreground">Theme</span>
@@ -204,8 +216,18 @@ export function AppSidebar() {
                         size="lg"
                         className="group-data-[collapsible=icon]:!h-16 group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!p-0"
                       >
-                        <div className="flex aspect-square size-10 shrink-0 items-center justify-center rounded-lg bg-muted group-data-[collapsible=icon]:!size-12">
-                          <User2 className="size-8 group-data-[collapsible=icon]:!size-6" />
+                        <div
+                          className={`flex aspect-square size-10 shrink-0 items-center justify-center rounded-full group-data-[collapsible=icon]:!size-12 ${
+                            user
+                              ? `bg-gradient-to-br ${getAvatarGradient(user.name)} text-sm font-bold text-white shadow-sm`
+                              : "bg-muted"
+                          }`}
+                        >
+                          {user ? (
+                            getInitials(user.name)
+                          ) : (
+                            <User2 className="size-8 group-data-[collapsible=icon]:!size-6" />
+                          )}
                         </div>
                         <div className="flex min-w-0 flex-col gap-0 text-left leading-none group-data-[collapsible=icon]:hidden">
                           <span className="truncate text-base">
@@ -256,7 +278,7 @@ export function AppSidebar() {
 
                   <DropdownMenuItem
                     className="cursor-pointer py-2 text-base text-destructive focus:text-destructive"
-                    onClick={handleLogout}
+                    onClick={openLogoutConfirm}
                   >
                     <LogOut className="size-4" />
                     <span>Logout</span>
@@ -267,6 +289,54 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
+
+      {showLogoutConfirm && (
+        <div
+          className="fixed inset-0 z-[100] flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0 fade-in-0"
+          onClick={() => !loggingOut && setShowLogoutConfirm(false)}
+        >
+          <div
+            className="w-full max-w-md animate-in rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-top-2"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Logout</h2>
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                disabled={loggingOut}
+                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive disabled:opacity-50"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to log out? You will need to sign in again
+              to access your wishlist, friends, and alerts.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                variant="outline"
+                disabled={loggingOut}
+                onClick={() => setShowLogoutConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={loggingOut}
+                onClick={handleLogout}
+                className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
+              >
+                {loggingOut && (
+                  <Loader2 className="size-4 animate-spin" />
+                )}
+                {loggingOut ? "Logging out..." : "Logout"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </TooltipProvider>
   )
 }

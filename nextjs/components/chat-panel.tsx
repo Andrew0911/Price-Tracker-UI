@@ -25,7 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { formatDateTime } from "@/lib/utils"
+import { getAvatarGradient, getInitials, formatDateTime } from "@/lib/utils"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -336,11 +336,7 @@ export function ChatPanel({ friend, onClose }: ChatPanelProps) {
   const isPollRunningRef = useRef(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const initials = friend.name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? "")
-    .join("")
+  const initials = getInitials(friend.name)
 
   // Initial load
   useEffect(() => {
@@ -439,7 +435,9 @@ export function ChatPanel({ friend, onClose }: ChatPanelProps) {
     <div className="flex h-full w-full flex-col overflow-hidden rounded-3xl bg-card shadow-2xl ring-1 ring-foreground/10">
       {/* Header */}
       <div className="flex shrink-0 items-center gap-3 border-b border-foreground/10 px-5 py-4">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 text-xs font-bold text-white shadow">
+        <div
+          className={`flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getAvatarGradient(friend.name)} text-xs font-bold text-white shadow`}
+        >
           {initials}
         </div>
         <div className="min-w-0 flex-1">

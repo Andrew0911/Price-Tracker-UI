@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useNotification } from "@/components/notification"
 import { ChatPanel } from "@/components/chat-panel"
+import { getAvatarGradient, getInitials } from "@/lib/utils"
 
 type FriendshipStatus =
   | "none"
@@ -37,30 +38,11 @@ type DiscoverUser = {
 type SimpleUser = { id: number; name: string; email: string }
 type Tab = "discover" | "friends" | "requests"
 
-const AVATAR_GRADIENTS = [
-  "from-emerald-400 to-green-600",
-  "from-green-400 to-teal-500",
-  "from-teal-400 to-emerald-600",
-  "from-lime-400 to-green-500",
-  "from-green-500 to-emerald-700",
-  "from-emerald-500 to-teal-600",
-]
-function getGradient(name: string) {
-  let hash = 0
-  for (let i = 0; i < name.length; i++)
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length]
-}
-
 function UserAvatar({ name }: { name: string }) {
-  const initials = name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? "")
-    .join("")
+  const initials = getInitials(name)
   return (
     <div
-      className={`flex size-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getGradient(name)} text-sm font-bold text-white shadow-md ring-2 shadow-primary/20 ring-white/20`}
+      className={`flex size-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getAvatarGradient(name)} text-sm font-bold text-white shadow-md ring-2 shadow-primary/20 ring-white/20`}
     >
       {initials}
     </div>
@@ -664,7 +646,6 @@ export default function FriendsPage() {
                 Cancel
               </Button>
               <Button
-                variant="destructive"
                 disabled={pendingIds.has(removeTarget.id)}
                 onClick={async () => {
                   await handleAction(
@@ -674,7 +655,7 @@ export default function FriendsPage() {
                   )
                   setRemoveTarget(null)
                 }}
-                className="gap-2"
+                className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
               >
                 {pendingIds.has(removeTarget.id) && (
                   <Loader2 className="size-4 animate-spin" />
