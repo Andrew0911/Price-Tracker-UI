@@ -564,20 +564,20 @@ export default function Wishlist() {
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>Products per page:</span>
               <div className="flex gap-1">
-              {PER_PAGE_OPTIONS.map((opt) => (
-                <button
-                  key={opt}
-                  onClick={() => handlePerPageChange(opt)}
-                  className={`rounded-lg px-1.5 py-0.5 text-[10px] font-medium transition-colors md:px-2.5 md:py-1 md:text-xs ${
-                    perPage === opt
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
+                {PER_PAGE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => handlePerPageChange(opt)}
+                    className={`rounded-lg px-1.5 py-0.5 text-[10px] font-medium transition-colors md:px-2.5 md:py-1 md:text-xs ${
+                      perPage === opt
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {lastPage > 1 && (
@@ -614,7 +614,7 @@ export default function Wishlist() {
       {/* Filter Modal */}
       {filterOpen && (
         <div
-          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0 fade-in-0"
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm fade-in-0 sm:px-0"
           onClick={closeFilter}
         >
           <div
@@ -669,9 +669,7 @@ export default function Wishlist() {
                         tabIndex={-1}
                         className="pointer-events-none cursor-pointer pr-8 text-base md:text-sm"
                       />
-                      <ChevronDown
-                        className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-muted-foreground"
-                      />
+                      <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent
@@ -800,7 +798,7 @@ export default function Wishlist() {
       {/* Add Product Modal */}
       {modalOpen && (
         <div
-          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0 fade-in-0"
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm fade-in-0 sm:px-0"
           onClick={closeModal}
         >
           <div
@@ -857,7 +855,3 @@ export default function Wishlist() {
     </div>
   )
 }
-
-
-
-

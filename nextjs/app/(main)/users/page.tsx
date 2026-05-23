@@ -542,11 +542,11 @@ export default function UsersPage() {
 
       {promoteTarget && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0"
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0 fade-in-0"
           onClick={() => setPromoteTarget(null)}
         >
           <div
-            className="w-full max-w-md rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10"
+            className="w-full max-w-md animate-in rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-top-2"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5 flex items-center justify-between">
