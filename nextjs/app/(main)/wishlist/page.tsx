@@ -22,6 +22,7 @@ import { api } from "@/lib/api"
 import { Store, STORES } from "@/lib/enums"
 import { useErrorHandler } from "@/lib/use-error-handler"
 import { useNotification } from "@/components/notification"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
@@ -65,6 +66,7 @@ export default function Wishlist() {
   const [loading, setLoading] = useState(true)
   const { handleError } = useErrorHandler()
   const { notify } = useNotification()
+  const isMobile = useIsMobile()
 
   const [modalOpen, setModalOpen] = useState(false)
   const [url, setUrl] = useState("")
@@ -78,6 +80,8 @@ export default function Wishlist() {
   const [storeDraft, setStoreDraft] = useState<Store | "">("")
   const [statusDraft, setStatusDraft] = useState<1 | 0 | null>(null)
   const [storePopoverOpen, setStorePopoverOpen] = useState(false)
+  const [storeSearch, setStoreSearch] = useState("")
+  const storeSearchRef = useRef<HTMLInputElement>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [suggestions, setSuggestions] = useState<Product[]>([])
@@ -99,6 +103,7 @@ export default function Wishlist() {
   function closeFilter() {
     setFilterOpen(false)
     setStorePopoverOpen(false)
+    setStoreSearch("")
   }
 
   function applyFilter() {
@@ -124,11 +129,31 @@ export default function Wishlist() {
 
   function openStorePopover() {
     setStorePopoverOpen(true)
+    setStoreSearch("")
   }
 
   function closeStorePopover() {
     setStorePopoverOpen(false)
+    setStoreSearch("")
   }
+
+  const storeOptions = (
+    [
+      ["", "All stores"],
+      ...STORES.map((store) => [
+        store,
+        store.charAt(0).toUpperCase() + store.slice(1),
+      ]),
+    ] as [Store | "", string][]
+  ).filter(([value, label]) => {
+    const query = storeSearch.trim().toLowerCase()
+    if (!query) return true
+
+    return (
+      label.toLowerCase().includes(query) ||
+      String(value).toLowerCase().includes(query)
+    )
+  })
 
   const activeFiltersCount =
     (activeAddedAfter ? 1 : 0) +
@@ -650,19 +675,27 @@ export default function Wishlist() {
                     </button>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="w-[var(--radix-popover-trigger-width)] p-1.5"
+                    className="w-[var(--radix-popover-trigger-width)] gap-2 p-2"
                     align="start"
+                    onOpenAutoFocus={(event) => {
+                      event.preventDefault()
+                      if (isMobile) return
+                      storeSearchRef.current?.focus()
+                    }}
                   >
-                    <div className="max-h-[152px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
-                      {(
-                        [
-                          ["", "All stores"],
-                          ...STORES.map((s) => [
-                            s,
-                            s.charAt(0).toUpperCase() + s.slice(1),
-                          ]),
-                        ] as [Store | "", string][]
-                      ).map(([value, label]) => (
+                    <div className="relative">
+                      <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        ref={storeSearchRef}
+                        value={storeSearch}
+                        onChange={(e) => setStoreSearch(e.target.value)}
+                        placeholder="Search stores..."
+                        className="h-9 pl-9 text-base md:text-sm"
+                      />
+                    </div>
+                    <div className="max-h-[172px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
+                      {storeOptions.length > 0 ? (
+                        storeOptions.map(([value, label]) => (
                           <button
                             key={value || "_all"}
                             onClick={() => {
@@ -673,7 +706,12 @@ export default function Wishlist() {
                           >
                             {label}
                           </button>
-                        ))}
+                        ))
+                      ) : (
+                        <p className="px-3 py-4 text-center text-sm text-muted-foreground">
+                          No stores found
+                        </p>
+                      )}
                     </div>
                   </PopoverContent>
                 </Popover>
