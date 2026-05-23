@@ -10,6 +10,7 @@ export enum Store {
   Modivo = "modivo",
   Aboutyou = "aboutyou",
   Fashiondays = "fashiondays",
+  Dummy = "dummy",
 }
 
 export const STORES = Object.values(Store)
