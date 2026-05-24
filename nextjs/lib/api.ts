@@ -1,7 +1,7 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 export const AUTH_COOKIE = "auth_token"
-const COOKIE_MAX_AGE = 60 * 60 * 24 // 1 day in seconds
+const COOKIE_MAX_AGE = 60 * 60 // 1 hour in seconds
 
 // --- Token helpers (cookie-based so middleware can read server-side) ---
 
