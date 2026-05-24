@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useUser } from "@/lib/user-context"
 
 const COMMON_ROUTES = ["/dashboard", "/wishlist", "/profile", "/account-settings"]
-const ADMIN_ROUTES = ["/users"]
+const ADMIN_ROUTES = ["/users", "/products"]
 const USER_ROUTES = ["/friends"]
 
 function isAllowedPath(pathname: string, isAdmin: boolean) {

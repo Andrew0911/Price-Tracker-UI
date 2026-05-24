@@ -6,31 +6,23 @@ import Link from "next/link"
 import {
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
   ShoppingCart,
   Plus,
   X,
   Loader2,
   ArrowRight,
   SlidersHorizontal,
-  CalendarIcon,
   Bell,
   Heart,
   Search,
 } from "lucide-react"
 import { api } from "@/lib/api"
-import { Store, STORES } from "@/lib/enums"
+import { Store } from "@/lib/enums"
 import { useErrorHandler } from "@/lib/use-error-handler"
 import { useNotification } from "@/components/notification"
-import { useIsMobile } from "@/hooks/use-mobile"
+import { ProductFilterModal } from "@/components/product-filter-modal"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import { Skeleton } from "@/components/ui/skeleton"
 
 type Product = {
@@ -66,7 +58,6 @@ export default function Wishlist() {
   const [loading, setLoading] = useState(true)
   const { handleError } = useErrorHandler()
   const { notify } = useNotification()
-  const isMobile = useIsMobile()
 
   const [modalOpen, setModalOpen] = useState(false)
   const [url, setUrl] = useState("")
@@ -79,9 +70,6 @@ export default function Wishlist() {
   )
   const [storeDraft, setStoreDraft] = useState<Store | "">("")
   const [statusDraft, setStatusDraft] = useState<1 | 0 | null>(null)
-  const [storePopoverOpen, setStorePopoverOpen] = useState(false)
-  const [storeSearch, setStoreSearch] = useState("")
-  const storeSearchRef = useRef<HTMLInputElement>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [suggestions, setSuggestions] = useState<Product[]>([])
@@ -102,8 +90,6 @@ export default function Wishlist() {
 
   function closeFilter() {
     setFilterOpen(false)
-    setStorePopoverOpen(false)
-    setStoreSearch("")
   }
 
   function applyFilter() {
@@ -126,34 +112,6 @@ export default function Wishlist() {
     setPage(1)
     setFilterOpen(false)
   }
-
-  function openStorePopover() {
-    setStorePopoverOpen(true)
-    setStoreSearch("")
-  }
-
-  function closeStorePopover() {
-    setStorePopoverOpen(false)
-    setStoreSearch("")
-  }
-
-  const storeOptions = (
-    [
-      ["", "All stores"],
-      ...STORES.map((store) => [
-        store,
-        store.charAt(0).toUpperCase() + store.slice(1),
-      ]),
-    ] as [Store | "", string][]
-  ).filter(([value, label]) => {
-    const query = storeSearch.trim().toLowerCase()
-    if (!query) return true
-
-    return (
-      label.toLowerCase().includes(query) ||
-      String(value).toLowerCase().includes(query)
-    )
-  })
 
   const activeFiltersCount =
     (activeAddedAfter ? 1 : 0) +
@@ -376,7 +334,7 @@ export default function Wishlist() {
               variant="outline"
               onClick={openFilter}
               size="sm"
-              className={`flex-1 gap-1 text-xs md:flex-none md:gap-2 md:text-sm${activeFiltersCount > 0 ? "border-primary text-primary" : ""}`}
+              className={`flex-1 gap-1 text-xs md:flex-none md:gap-2 md:text-sm ${activeFiltersCount > 0 ? "border-primary text-primary" : ""}`}
             >
               <SlidersHorizontal className="size-3 md:size-4" />
               <span className="hidden sm:inline">Filter</span>
@@ -611,189 +569,18 @@ export default function Wishlist() {
         </div>
       )}
 
-      {/* Filter Modal */}
-      {filterOpen && (
-        <div
-          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm fade-in-0 sm:px-0"
-          onClick={closeFilter}
-        >
-          <div
-            className="w-full max-w-sm animate-in rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-top-2 md:max-w-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Filter products</h2>
-              <button
-                onClick={closeFilter}
-                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Store</label>
-                  {storeDraft && (
-                    <button
-                      onClick={() => setStoreDraft("")}
-                      className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/70"
-                    >
-                      <X className="size-3" />
-                      Clear
-                    </button>
-                  )}
-                </div>
-                <Popover
-                  open={storePopoverOpen}
-                  onOpenChange={(open) => {
-                    if (open) {
-                      openStorePopover()
-                    } else {
-                      closeStorePopover()
-                    }
-                  }}
-                >
-                  <PopoverTrigger asChild>
-                    <button type="button" className="relative w-full text-left">
-                      <Input
-                        value={
-                          storeDraft
-                            ? storeDraft.charAt(0).toUpperCase() +
-                              storeDraft.slice(1)
-                            : ""
-                        }
-                        placeholder="All stores"
-                        readOnly
-                        tabIndex={-1}
-                        className="pointer-events-none cursor-pointer pr-8 text-base md:text-sm"
-                      />
-                      <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-[var(--radix-popover-trigger-width)] gap-2 p-2"
-                    align="start"
-                    onOpenAutoFocus={(event) => {
-                      event.preventDefault()
-                      if (isMobile) return
-                      storeSearchRef.current?.focus()
-                    }}
-                  >
-                    <div className="relative">
-                      <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        ref={storeSearchRef}
-                        value={storeSearch}
-                        onChange={(e) => setStoreSearch(e.target.value)}
-                        placeholder="Search stores..."
-                        className="h-9 pl-9 text-base md:text-sm"
-                      />
-                    </div>
-                    <div className="max-h-[172px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
-                      {storeOptions.length > 0 ? (
-                        storeOptions.map(([value, label]) => (
-                          <button
-                            key={value || "_all"}
-                            onClick={() => {
-                              setStoreDraft(value)
-                              closeStorePopover()
-                            }}
-                            className={`flex w-full items-center rounded-2xl px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground ${storeDraft === value ? "text-chart-3" : ""}`}
-                          >
-                            {label}
-                          </button>
-                        ))
-                      ) : (
-                        <p className="px-3 py-4 text-center text-sm text-muted-foreground">
-                          No stores found
-                        </p>
-                      )}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium">Status</label>
-                <div className="flex gap-2">
-                  {([null, 1, 0] as const).map((val) => (
-                    <button
-                      key={val ?? "_all"}
-                      onClick={() => setStatusDraft(val)}
-                      className={`flex-1 rounded-2xl px-3 py-2 text-sm font-medium transition-colors ${
-                        statusDraft === val
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      {val === null
-                        ? "All"
-                        : val === 1
-                          ? "Available"
-                          : "Unavailable"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Added after</label>{" "}
-                  {addedAfterDraft && (
-                    <button
-                      onClick={() => setAddedAfterDraft(undefined)}
-                      className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/70"
-                    >
-                      <X className="size-3" />
-                      Clear
-                    </button>
-                  )}
-                </div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start gap-2 font-normal"
-                    >
-                      <CalendarIcon className="size-4 text-muted-foreground" />
-                      {addedAfterDraft ? (
-                        addedAfterDraft.toLocaleDateString("ro-RO", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })
-                      ) : (
-                        <span className="text-muted-foreground">
-                          Pick a date
-                        </span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={addedAfterDraft}
-                      onSelect={setAddedAfterDraft}
-                      disabled={(date: Date) => date > new Date()}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={clearFilter}>
-                  Clear
-                </Button>
-                <Button onClick={applyFilter} className="gap-2">
-                  Apply
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ProductFilterModal
+        addedAfterDraft={addedAfterDraft}
+        onAddedAfterDraftChange={setAddedAfterDraft}
+        onApply={applyFilter}
+        onClear={clearFilter}
+        onClose={closeFilter}
+        open={filterOpen}
+        statusDraft={statusDraft}
+        onStatusDraftChange={setStatusDraft}
+        storeDraft={storeDraft}
+        onStoreDraftChange={setStoreDraft}
+      />
 
       {/* Add Product Modal */}
       {modalOpen && (

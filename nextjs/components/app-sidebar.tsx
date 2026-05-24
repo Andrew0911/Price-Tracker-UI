@@ -40,6 +40,7 @@ import {
   Heart,
   Users,
   ShieldUser,
+  PackageSearch,
   PanelLeft,
   Loader2,
 } from "lucide-react"
@@ -64,6 +65,7 @@ export function AppSidebar() {
     ? [
         { title: "Dashboard", icon: LayoutDashboard, url: "dashboard" },
         { title: "Wishlist", icon: Heart, url: "wishlist" },
+        { title: "Products", icon: PackageSearch, url: "products" },
         { title: "Users", icon: ShieldUser, url: "users" },
       ]
     : [
