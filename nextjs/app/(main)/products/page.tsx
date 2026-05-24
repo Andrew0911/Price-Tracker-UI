@@ -4,6 +4,7 @@ import Image from "next/image"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   AlertTriangle,
+  Bell,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
@@ -257,9 +258,7 @@ export default function AdminProductsPage() {
         </Button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-hidden px-6">
-        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl bg-card p-3 shadow-sm ring-1 ring-foreground/5 md:p-4">
-          <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-0 md:pr-2 md:[&::-webkit-scrollbar]:w-1.5 md:[&::-webkit-scrollbar-thumb]:rounded-full md:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 md:hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 md:[&::-webkit-scrollbar-track]:rounded-full md:[&::-webkit-scrollbar-track]:bg-transparent">
+      <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 pb-6 md:pr-8 md:[&::-webkit-scrollbar]:w-1.5 md:[&::-webkit-scrollbar-thumb]:rounded-full md:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 md:hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 md:[&::-webkit-scrollbar-track]:rounded-full md:[&::-webkit-scrollbar-track]:bg-transparent">
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={i} className="h-44 w-full rounded-2xl md:h-32" />
@@ -351,21 +350,22 @@ export default function AdminProductsPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-2">
-                    <div className="rounded-2xl border border-border bg-card/80 p-3 dark:border-white/5 dark:bg-muted/60">
-                      <p className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+                    <div className="rounded-2xl border border-chart-3/20 bg-chart-3/10 p-3">
+                      <p className="flex items-center gap-1.5 text-[11px] font-medium text-chart-3/80">
                         <Users className="size-3" />
                         Tracking
                       </p>
-                      <p className="mt-1 text-sm font-semibold">
+                      <p className="mt-1 text-sm font-semibold text-chart-3">
                         {product.users_count} user
                         {product.users_count === 1 ? "" : "s"}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-border bg-card/80 p-3 dark:border-white/5 dark:bg-muted/60">
-                      <p className="text-[11px] font-medium text-muted-foreground">
+                    <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 p-3">
+                      <p className="flex items-center gap-1.5 text-[11px] font-medium text-yellow-600 dark:text-yellow-400">
+                        <Bell className="size-3" />
                         Alerts
                       </p>
-                      <p className="mt-1 text-sm font-semibold">
+                      <p className="mt-1 text-sm font-semibold text-yellow-600 dark:text-yellow-400">
                         {product.price_alerts_count}
                       </p>
                     </div>
@@ -416,8 +416,6 @@ export default function AdminProductsPage() {
                 </div>
               ))
             )}
-          </div>
-        </div>
       </div>
 
       {!loading && total > 0 && (
