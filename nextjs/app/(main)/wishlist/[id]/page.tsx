@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/chart"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
 import { Skeleton } from "@/components/ui/skeleton"
 import { api } from "@/lib/api"
 import { useErrorHandler } from "@/lib/use-error-handler"
@@ -48,9 +49,12 @@ type PriceHistory = {
   checked_at: string
 }
 
+type AlertType = "target_price" | "price_drop"
+
 type PriceAlert = {
   id: number
-  target_price: string
+  type: AlertType
+  target_price: string | null
 }
 
 type Product = {
@@ -132,6 +136,7 @@ export default function ProductDetail() {
   const [alertPrice, setAlertPrice] = useState("")
   const [savingAlert, setSavingAlert] = useState(false)
   const [deletingAlert, setDeletingAlert] = useState(false)
+  const [togglingDropAlert, setTogglingDropAlert] = useState(false)
   const [deletingProduct, setDeletingProduct] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
@@ -154,6 +159,7 @@ export default function ProductDetail() {
     setSavingAlert(true)
     try {
       const res = await api.post<never>(`/products/${product.id}/alerts`, {
+        type: "target_price",
         target_price: parseFloat(alertPrice),
       })
       const alert = (res as unknown as { data: PriceAlert }).data
@@ -161,12 +167,15 @@ export default function ProductDetail() {
         prev
           ? {
               ...prev,
-              price_alerts: [alert],
+              price_alerts: [
+                ...prev.price_alerts.filter((a) => a.type !== "target_price"),
+                alert,
+              ],
             }
           : prev
       )
       setAlertPrice("")
-      notify({ type: "success", message: "Alert saved" })
+      notify({ type: "success", message: "Target price alert saved" })
     } catch (err) {
       handleError(err)
     } finally {
@@ -176,17 +185,80 @@ export default function ProductDetail() {
 
   async function handleDeleteAlert() {
     if (!product) return
-    const alert = product.price_alerts[0]
+    const alert = product.price_alerts.find((a) => a.type === "target_price")
     if (!alert) return
     setDeletingAlert(true)
     try {
       await api.delete(`/products/${product.id}/alerts/${alert.id}`)
-      setProduct((prev) => (prev ? { ...prev, price_alerts: [] } : prev))
-      notify({ type: "success", message: "Alert removed" })
+      setProduct((prev) =>
+        prev
+          ? {
+              ...prev,
+              price_alerts: prev.price_alerts.filter((a) => a.id !== alert.id),
+            }
+          : prev
+      )
+      notify({ type: "success", message: "Target price alert removed" })
     } catch (err) {
       handleError(err)
     } finally {
       setDeletingAlert(false)
+    }
+  }
+
+  async function handleToggleDropAlert(checked: boolean) {
+    if (!product || togglingDropAlert) return
+
+    const dropAlert = product.price_alerts.find((a) => a.type === "price_drop")
+
+    if (checked) {
+      setTogglingDropAlert(true)
+      try {
+        const res = await api.post<never>(`/products/${product.id}/alerts`, {
+          type: "price_drop",
+        })
+        const alert = (res as unknown as { data: PriceAlert }).data
+        setProduct((prev) =>
+          prev
+            ? {
+                ...prev,
+                price_alerts: [
+                  ...prev.price_alerts.filter((a) => a.type !== "price_drop"),
+                  alert,
+                ],
+              }
+            : prev
+        )
+        notify({ type: "success", message: "Price drop alerts enabled" })
+      } catch (err) {
+        handleError(err)
+      } finally {
+        setTogglingDropAlert(false)
+      }
+
+      return
+    }
+
+    if (!dropAlert) return
+
+    setTogglingDropAlert(true)
+    try {
+      await api.delete(`/products/${product.id}/alerts/${dropAlert.id}`)
+      setProduct((prev) =>
+        prev
+          ? {
+              ...prev,
+              price_alerts: prev.price_alerts.filter(
+                (a) => a.id !== dropAlert.id
+              ),
+            }
+          : prev
+      )
+      notify({ type: "success", message: "Price drop alerts disabled" })
+    } catch (err) {
+      handleError(err)
+    } finally {
+      setTogglingDropAlert(false)
     }
   }
 
@@ -225,7 +297,11 @@ export default function ProductDetail() {
 
   const currentDot = chartData[chartData.length - 1] ?? null
 
-  const activeAlert = product?.price_alerts?.[0] ?? null
+  const targetAlert =
+    product?.price_alerts?.find((alert) => alert.type === "target_price") ??
+    null
+  const dropAlert =
+    product?.price_alerts?.find((alert) => alert.type === "price_drop") ?? null
 
   const firstHistoryPrice =
     product?.price_history && product.price_history.length > 0
@@ -526,14 +602,14 @@ export default function ProductDetail() {
                         }
                         content={<ChartTooltipContent />}
                       />
-                      {activeAlert && (
+                      {targetAlert?.target_price && (
                         <ReferenceLine
-                          y={parseFloat(activeAlert.target_price)}
+                          y={parseFloat(targetAlert.target_price)}
                           stroke="var(--color-chart-3)"
                           strokeDasharray="5 4"
                           strokeOpacity={0.55}
                           label={{
-                            value: `Alert · ${activeAlert.target_price}`,
+                            value: `Alert - ${targetAlert.target_price}`,
                             fontSize: 10,
                             fill: "var(--color-chart-3)",
                             position: "insideTopRight",
@@ -569,78 +645,108 @@ export default function ProductDetail() {
               )}
             </div>
 
-            {/* Price alert — fixed height */}
-            <div className="mb-4 flex shrink-0 flex-col gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 lg:mb-0">
+            {/* Price alerts */}
+            <div className="mb-4 flex shrink-0 flex-col gap-5 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 lg:mb-0">
               <div>
-                <h3 className="font-semibold">Price alert</h3>
-                <p className="text-xs text-muted-foreground">
-                  Get notified when the price drops below your target
+                <h3 className="font-semibold">Price alerts</h3>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  Set a target price or get notified whenever the tracked price
+                  drops.
                 </p>
               </div>
 
-              {activeAlert ? (
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between rounded-2xl bg-chart-3/10 px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <Bell className="size-4 text-chart-3" />
-                      <span className="text-sm font-medium">
-                        Alert at{" "}
-                        <span className="text-chart-3">
-                          {activeAlert.target_price} {product.currency}
-                        </span>
-                      </span>
+              <div className="space-y-3">
+                <div className="flex flex-col gap-4 rounded-2xl bg-muted/40 p-4 transition-colors hover:bg-muted/65">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-chart-3/10">
+                        <Bell className="size-5 text-chart-3" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold">
+                          Target price
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Notify me when this product reaches my chosen price.
+                        </p>
+                      </div>
                     </div>
+
+                    {targetAlert ? (
+                      <div className="flex flex-wrap items-center gap-2 md:justify-end">
+                        <div className="rounded-full bg-chart-3/10 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-chart-3">
+                          {targetAlert.target_price} {product.currency}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="hover:text-destructive-foreground h-8 shrink-0 gap-1.5 px-2.5 text-xs font-semibold text-destructive hover:bg-destructive"
+                          onClick={handleDeleteAlert}
+                          disabled={deletingAlert}
+                        >
+                          {deletingAlert ? (
+                            <Loader2 className="size-3 animate-spin" />
+                          ) : (
+                            <BellOff className="size-3" />
+                          )}
+                          Remove
+                        </Button>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="flex flex-col gap-2 md:flex-row md:pl-15">
+                    <Input
+                      type="number"
+                      placeholder={`Target price (${product.currency})`}
+                      value={alertPrice}
+                      onChange={(e) => setAlertPrice(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSaveAlert()}
+                      disabled={savingAlert}
+                      min={0}
+                      step={0.01}
+                      className="bg-card"
+                    />
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      className="hover:text-destructive-foreground h-7 gap-1 text-xs text-destructive hover:bg-destructive"
-                      onClick={handleDeleteAlert}
-                      disabled={deletingAlert}
+                      onClick={handleSaveAlert}
+                      disabled={
+                        savingAlert || !alertPrice || !!product.scrape_error
+                      }
+                      className="shrink-0 gap-2"
                     >
-                      {deletingAlert ? (
-                        <Loader2 className="size-3 animate-spin" />
+                      {savingAlert ? (
+                        <Loader2 className="size-4 animate-spin" />
                       ) : (
-                        <BellOff className="size-3" />
+                        <Bell className="size-4" />
                       )}
-                      Remove
+                      {targetAlert ? "Update" : "Set alert"}
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    You can set a new target to overwrite the current alert.
-                  </p>
                 </div>
-              ) : (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <BellOff className="size-4 opacity-50" />
-                  No active alert
-                </div>
-              )}
 
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  placeholder={`Target price (${product.currency})`}
-                  value={alertPrice}
-                  onChange={(e) => setAlertPrice(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSaveAlert()}
-                  disabled={savingAlert}
-                  min={0}
-                  step={0.01}
-                />
-                <Button
-                  onClick={handleSaveAlert}
-                  disabled={
-                    savingAlert || !alertPrice || !!product.scrape_error
-                  }
-                  className="shrink-0 gap-2"
-                >
-                  {savingAlert ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Bell className="size-4" />
-                  )}
-                  {activeAlert ? "Update" : "Set alert"}
-                </Button>
+                <div className="flex items-center justify-between gap-4 rounded-2xl bg-muted/40 p-4 transition-colors hover:bg-muted/65">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-chart-3/10">
+                      <TrendingDown className="size-5 text-chart-3" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">
+                        Any price drop
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Notify me whenever this product gets cheaper.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex shrink-0 items-center">
+                    <Switch
+                      checked={!!dropAlert}
+                      onCheckedChange={handleToggleDropAlert}
+                      disabled={!!product.scrape_error || togglingDropAlert}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -650,7 +756,7 @@ export default function ProductDetail() {
       {/* Delete confirmation modal */}
       {deleteModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0 fade-in-0"
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm fade-in-0 sm:px-0"
           onClick={() => setDeleteModalOpen(false)}
         >
           <div
@@ -696,4 +802,3 @@ export default function ProductDetail() {
     </div>
   )
 }
-
