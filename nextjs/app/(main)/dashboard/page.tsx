@@ -113,15 +113,17 @@ export default function Dashboard() {
   return (
     <div className="no-scrollbar flex h-full flex-col overflow-y-auto">
       {/* Header */}
-      <div className="relative mb-3 shrink-0 overflow-hidden px-6 pt-6 pb-5">
+      <div className="relative mb-3 shrink-0 overflow-hidden px-4 pt-4 pb-4 md:px-6 md:pt-6 md:pb-5">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/3 to-transparent" />
         <div className="pointer-events-none absolute -top-10 -right-10 size-48 rounded-full bg-primary/8 blur-3xl" />
         <div className="relative">
           <div className="mb-1 flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/25">
-              <LayoutDashboard className="size-5 text-primary" />
+            <div className="flex size-8 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/25 md:size-9">
+              <LayoutDashboard className="size-4 text-primary md:size-5" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+              Dashboard
+            </h1>
           </div>
           <p className="pl-0.5 text-sm text-muted-foreground">
             Here&apos;s a summary of your tracked products.
@@ -130,7 +132,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 px-6 pb-6 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 px-4 pb-6 md:px-6 sm:grid-cols-2 xl:grid-cols-4">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
               <div

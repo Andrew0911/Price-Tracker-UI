@@ -89,15 +89,15 @@ export default function AccountSettingsPage() {
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
-      <div className="relative mb-3 shrink-0 overflow-hidden px-6 pt-6 pb-5">
+      <div className="relative mb-3 shrink-0 overflow-hidden px-4 pt-4 pb-4 md:px-6 md:pt-6 md:pb-5">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/3 to-transparent" />
         <div className="pointer-events-none absolute -top-10 -right-10 size-48 rounded-full bg-primary/8 blur-3xl" />
         <div className="relative">
           <div className="mb-1 flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/25">
-              <Settings className="size-5 text-primary" />
+            <div className="flex size-8 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/25 md:size-9">
+              <Settings className="size-4 text-primary md:size-5" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
               Account settings
             </h1>
           </div>
@@ -107,7 +107,7 @@ export default function AccountSettingsPage() {
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-xl px-6 pb-6">
+      <div className="mx-auto w-full max-w-xl px-4 pb-6 md:px-6">
         <div className="flex w-full flex-col gap-6">
           <div className="animate-in rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">
             <h2 className="mb-4 text-sm font-semibold">Profile</h2>
