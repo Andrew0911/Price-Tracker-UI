@@ -13,7 +13,7 @@ export function MainContent({ children }: { children: React.ReactNode }) {
       className={cn(
         "flex min-h-0 flex-1 flex-col pt-16 md:pt-0",
         isProductDetailPage
-          ? "overflow-y-auto md:overflow-hidden"
+          ? "no-scrollbar overflow-y-auto"
           : "overflow-hidden"
       )}
     >

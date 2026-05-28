@@ -215,20 +215,6 @@ export default function Wishlist() {
     setPage(1)
   }
 
-  const pageNumbers = Array.from({ length: lastPage }, (_, i) => i + 1)
-  const visiblePages =
-    lastPage <= 7
-      ? pageNumbers
-      : [
-          1,
-          ...(page > 3 ? ["…"] : []),
-          ...pageNumbers.slice(
-            Math.max(1, page - 2),
-            Math.min(lastPage - 1, page + 1)
-          ),
-          ...(page < lastPage - 2 ? ["…"] : []),
-          lastPage,
-        ]
 
   return (
     <div className="flex h-full flex-col overflow-hidden">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import {
   ShieldUser,
   ShieldCheck,
@@ -99,21 +99,6 @@ export default function UsersPage() {
     }
   }, [selectedUser])
 
-  const visiblePages = useMemo(() => {
-    const pageNumbers = Array.from({ length: lastPage }, (_, i) => i + 1)
-    return lastPage <= 7
-      ? pageNumbers
-      : [
-          1,
-          ...(page > 3 ? ["…"] : []),
-          ...pageNumbers.slice(
-            Math.max(1, page - 2),
-            Math.min(lastPage - 1, page + 1)
-          ),
-          ...(page < lastPage - 2 ? ["…"] : []),
-          lastPage,
-        ]
-  }, [lastPage, page])
 
   async function handleDeleteUser() {
     if (!deleteTarget) return

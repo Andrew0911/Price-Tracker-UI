@@ -69,6 +69,7 @@ type Product = {
   scrape_error: string | null
   price_history: PriceHistory[]
   price_alerts: PriceAlert[]
+  is_in_wishlist: boolean
 }
 
 type ProductResponse = {
@@ -155,7 +156,7 @@ export default function ProductDetail() {
   }, [id])
 
   async function handleSaveAlert() {
-    if (!alertPrice || !product) return
+    if (!alertPrice || !product || !canManageWishlistProduct) return
     setSavingAlert(true)
     try {
       const res = await api.post<never>(`/products/${product.id}/alerts`, {
@@ -184,7 +185,7 @@ export default function ProductDetail() {
   }
 
   async function handleDeleteAlert() {
-    if (!product) return
+    if (!product || !canManageWishlistProduct) return
     const alert = product.price_alerts.find((a) => a.type === "target_price")
     if (!alert) return
     setDeletingAlert(true)
@@ -207,7 +208,7 @@ export default function ProductDetail() {
   }
 
   async function handleToggleDropAlert(checked: boolean) {
-    if (!product || togglingDropAlert) return
+    if (!product || togglingDropAlert || !canManageWishlistProduct) return
 
     const dropAlert = product.price_alerts.find((a) => a.type === "price_drop")
 
@@ -263,7 +264,7 @@ export default function ProductDetail() {
   }
 
   async function performDeleteProduct() {
-    if (!product) return
+    if (!product || !canManageWishlistProduct) return
     setDeletingProduct(true)
     try {
       await api.delete(`/products/${product.id}`)
@@ -302,6 +303,7 @@ export default function ProductDetail() {
     null
   const dropAlert =
     product?.price_alerts?.find((alert) => alert.type === "price_drop") ?? null
+  const canManageWishlistProduct = product?.is_in_wishlist === true
 
   const firstHistoryPrice =
     product?.price_history && product.price_history.length > 0
@@ -328,8 +330,8 @@ export default function ProductDetail() {
           <Skeleton className="h-8 w-20 rounded-2xl" />
           <Skeleton className="h-5 w-64" />
         </div>
-        <div className="min-h-0 flex-1 px-6 pb-6">
-          <div className="grid grid-cols-1 gap-6 lg:h-full lg:grid-cols-2">
+        <div className="min-h-0 flex-1 px-6 pb-10">
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
             <Skeleton className="h-full rounded-3xl" />
             <div className="flex flex-col gap-6">
               <Skeleton className="flex-1 rounded-3xl" />
@@ -360,8 +362,8 @@ export default function ProductDetail() {
       </div>
 
       {/* Cards fill remaining space */}
-      <div className="min-h-0 flex-1 px-6 pb-6">
-        <div className="grid grid-cols-1 gap-6 lg:h-full lg:grid-cols-2">
+      <div className="px-6 pb-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* LEFT — Product details card */}
           <div className="flex animate-in flex-col overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">
             {/* Image */}
@@ -399,7 +401,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Info */}
-            <div className="flex flex-col gap-5 p-6 lg:flex-1 lg:overflow-y-auto">
+            <div className="flex flex-1 flex-col gap-5 p-6">
               {/* Name */}
               <h2 className="text-lg leading-snug font-semibold">
                 {product.name}
@@ -492,7 +494,7 @@ export default function ProductDetail() {
                   variant="outline"
                   className="w-full gap-2 text-destructive hover:bg-destructive/10"
                   onClick={() => setDeleteModalOpen(true)}
-                  disabled={deletingProduct}
+                  disabled={deletingProduct || !canManageWishlistProduct}
                 >
                   {deletingProduct ? (
                     <Loader2 className="size-4 animate-spin" />
@@ -511,7 +513,7 @@ export default function ProductDetail() {
             style={{ animationDelay: "75ms" }}
           >
             {/* Price history chart — grows to fill */}
-            <div className="flex min-h-[300px] flex-col gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 lg:min-h-0 lg:flex-1">
+            <div className="flex h-[360px] flex-col gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5">
               <div className="flex shrink-0 items-start justify-between">
                 <div>
                   <h3 className="font-semibold">Price history</h3>
@@ -646,7 +648,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Price alerts */}
-            <div className="mb-4 flex shrink-0 flex-col gap-5 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 lg:mb-0">
+            <div className="flex shrink-0 flex-col gap-5 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5">
               <div>
                 <h3 className="font-semibold">Price alerts</h3>
                 <p className="mt-1 text-xs leading-5 text-muted-foreground">
@@ -682,7 +684,7 @@ export default function ProductDetail() {
                           size="sm"
                           className="hover:text-destructive-foreground h-8 shrink-0 gap-1.5 px-2.5 text-xs font-semibold text-destructive hover:bg-destructive"
                           onClick={handleDeleteAlert}
-                          disabled={deletingAlert}
+                          disabled={deletingAlert || !canManageWishlistProduct}
                         >
                           {deletingAlert ? (
                             <Loader2 className="size-3 animate-spin" />
@@ -702,7 +704,11 @@ export default function ProductDetail() {
                       value={alertPrice}
                       onChange={(e) => setAlertPrice(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleSaveAlert()}
-                      disabled={savingAlert}
+                      disabled={
+                        savingAlert ||
+                        !!product.scrape_error ||
+                        !canManageWishlistProduct
+                      }
                       min={0}
                       step={0.01}
                       className="bg-card"
@@ -710,7 +716,10 @@ export default function ProductDetail() {
                     <Button
                       onClick={handleSaveAlert}
                       disabled={
-                        savingAlert || !alertPrice || !!product.scrape_error
+                        savingAlert ||
+                        !alertPrice ||
+                        !!product.scrape_error ||
+                        !canManageWishlistProduct
                       }
                       className="shrink-0 gap-2"
                     >
@@ -743,7 +752,11 @@ export default function ProductDetail() {
                     <Switch
                       checked={!!dropAlert}
                       onCheckedChange={handleToggleDropAlert}
-                      disabled={!!product.scrape_error || togglingDropAlert}
+                      disabled={
+                        !!product.scrape_error ||
+                        togglingDropAlert ||
+                        !canManageWishlistProduct
+                      }
                     />
                   </div>
                 </div>
@@ -754,7 +767,7 @@ export default function ProductDetail() {
       </div>
 
       {/* Delete confirmation modal */}
-      {deleteModalOpen && (
+      {canManageWishlistProduct && deleteModalOpen && (
         <div
           className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm fade-in-0 sm:px-0"
           onClick={() => setDeleteModalOpen(false)}
@@ -764,7 +777,7 @@ export default function ProductDetail() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Delete product</h2>
+              <h2 className="text-lg font-semibold">Remove product</h2>
               <button
                 onClick={() => setDeleteModalOpen(false)}
                 disabled={deletingProduct}
@@ -775,8 +788,8 @@ export default function ProductDetail() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Are you sure you want to delete this product? This action cannot
-              be undone.
+              Are you sure you want to remove this product from your wishlist ?
+              You will be able to add it again at need.
             </p>
 
             <div className="mt-6 flex justify-end gap-2">
@@ -793,7 +806,7 @@ export default function ProductDetail() {
                 className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
               >
                 {deletingProduct && <Loader2 className="size-4 animate-spin" />}
-                {deletingProduct ? "Deleting..." : "Delete"}
+                {deletingProduct ? "Removing..." : "Remove"}
               </Button>
             </div>
           </div>

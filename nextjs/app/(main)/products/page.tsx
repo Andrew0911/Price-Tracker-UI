@@ -1,7 +1,8 @@
 "use client"
 
 import Image from "next/image"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   AlertTriangle,
   Bell,
@@ -58,6 +59,7 @@ function errorMessage(err: unknown, fallback: string) {
 }
 
 export default function AdminProductsPage() {
+  const router = useRouter()
   const { user } = useUser()
   const { notify } = useNotification()
   const [products, setProducts] = useState<AdminProduct[]>([])
@@ -129,22 +131,6 @@ export default function AdminProductsPage() {
     )
     return () => clearTimeout(timer)
   }, [loadProducts, page, perPage, query])
-
-  const visiblePages = useMemo(() => {
-    const pageNumbers = Array.from({ length: lastPage }, (_, i) => i + 1)
-    return lastPage <= 7
-      ? pageNumbers
-      : [
-          1,
-          ...(page > 3 ? ["..."] : []),
-          ...pageNumbers.slice(
-            Math.max(1, page - 2),
-            Math.min(lastPage - 1, page + 1)
-          ),
-          ...(page < lastPage - 2 ? ["..."] : []),
-          lastPage,
-        ]
-  }, [lastPage, page])
 
   function openFilter() {
     setStoreDraft(activeStore)
@@ -261,163 +247,173 @@ export default function AdminProductsPage() {
       </div>
 
       <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 pb-6 md:pr-8 md:[&::-webkit-scrollbar]:w-1.5 md:[&::-webkit-scrollbar-thumb]:rounded-full md:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 md:hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 md:[&::-webkit-scrollbar-track]:rounded-full md:[&::-webkit-scrollbar-track]:bg-transparent">
-            {loading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-44 w-full rounded-2xl md:h-32" />
-              ))
-            ) : products.length === 0 ? (
-              <div className="flex min-h-52 items-center justify-center rounded-2xl bg-muted/30 text-sm text-muted-foreground">
-                No products found.
-              </div>
-            ) : (
-              products.map((product, i) => (
-                <div
-                  key={product.id}
-                  className="grid animate-in gap-4 rounded-2xl border border-border bg-muted/35 p-4 duration-300 fill-mode-both fade-in slide-in-from-bottom-3 hover:bg-muted/55 dark:border-white/5 dark:bg-muted/55 dark:hover:bg-muted/70 xl:grid-cols-[minmax(0,1.5fr)_minmax(230px,0.5fr)_minmax(260px,0.65fr)_auto] xl:items-center"
-                  style={{ animationDelay: `${i * 45}ms` }}
-                >
-                  <div className="flex min-w-0 gap-4">
-                    {product.image_url ? (
-                      <Image
-                        src={product.image_url}
-                        alt={product.name}
-                        width={96}
-                        height={96}
-                        unoptimized
-                        className="size-24 shrink-0 rounded-2xl bg-white object-contain p-2 shadow-sm ring-1 ring-black/5"
-                      />
-                    ) : (
-                      <div className="flex size-24 shrink-0 items-center justify-center rounded-2xl bg-background text-xs text-muted-foreground ring-1 ring-border">
-                        No image
-                      </div>
-                    )}
-                    <div className="min-w-0 pt-1">
-                      <p className="line-clamp-2 text-sm leading-snug font-semibold">
-                        {product.name}
-                      </p>
-                      <p className="mt-1 line-clamp-2 text-xs break-all text-muted-foreground">
-                        {product.url}
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                        <span className="rounded-full border border-border bg-card/80 px-2.5 py-1 font-medium capitalize dark:border-white/5 dark:bg-muted/60">
-                          {product.store ?? "unknown store"}
-                        </span>
-                      </div>
-                    </div>
+        {loading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-44 w-full rounded-2xl md:h-32" />
+          ))
+        ) : products.length === 0 ? (
+          <div className="flex min-h-52 items-center justify-center rounded-2xl bg-muted/30 text-sm text-muted-foreground">
+            No products found.
+          </div>
+        ) : (
+          products.map((product, i) => (
+            <div
+              key={product.id}
+              role="button"
+              tabIndex={0}
+              className="grid animate-in cursor-pointer gap-4 rounded-2xl border border-border bg-muted/35 p-4 duration-300 fill-mode-both fade-in slide-in-from-bottom-3 hover:bg-muted/55 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none xl:grid-cols-[minmax(0,1.5fr)_minmax(230px,0.5fr)_minmax(260px,0.65fr)_auto] xl:items-center dark:border-white/5 dark:bg-muted/55 dark:hover:bg-muted/70"
+              onClick={() => router.push(`/wishlist/${product.id}`)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault()
+                  router.push(`/wishlist/${product.id}`)
+                }
+              }}
+              style={{ animationDelay: `${i * 45}ms` }}
+            >
+              <div className="flex min-w-0 gap-4">
+                {product.image_url ? (
+                  <Image
+                    src={product.image_url}
+                    alt={product.name}
+                    width={96}
+                    height={96}
+                    unoptimized
+                    className="size-24 shrink-0 rounded-2xl bg-white object-contain p-2 shadow-sm ring-1 ring-black/5"
+                  />
+                ) : (
+                  <div className="flex size-24 shrink-0 items-center justify-center rounded-2xl bg-background text-xs text-muted-foreground ring-1 ring-border">
+                    No image
                   </div>
-
-                  <div className="grid grid-cols-2 gap-2 xl:grid-cols-1">
-                    <div className="rounded-2xl border border-border bg-card/80 p-3 dark:border-white/5 dark:bg-muted/60">
-                      <p className="text-[11px] font-medium text-muted-foreground">
-                        Current price
-                      </p>
-                      <p
-                        className={`mt-1 text-base font-bold ${
-                          product.current_price
-                            ? "text-chart-3"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {product.current_price
-                          ? `${product.current_price} ${product.currency}`
-                          : "Unavailable"}
-                      </p>
-                    </div>
-                    <div
-                      className={`rounded-2xl border p-3 ${
-                        product.scrape_error
-                          ? "border-destructive/20 bg-destructive/10 dark:bg-destructive/15"
-                          : "border-border bg-card/80 dark:border-white/5 dark:bg-muted/60"
-                      }`}
-                    >
-                      <p className="text-[11px] font-medium text-muted-foreground">
-                        Status
-                      </p>
-                      {product.scrape_error ? (
-                        <div className="mt-1 text-destructive">
-                          <p className="inline-flex items-center gap-1.5 text-sm font-bold">
-                            <AlertTriangle className="size-3.5" />
-                            Error
-                          </p>
-                          <p className="mt-1 line-clamp-2 text-xs leading-4">
-                            {product.scrape_error}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="mt-1 text-sm font-bold text-chart-3">
-                          OK
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-2">
-                    <div className="rounded-2xl border border-chart-3/20 bg-chart-3/10 p-3">
-                      <p className="flex items-center gap-1.5 text-[11px] font-medium text-chart-3/80">
-                        <Users className="size-3" />
-                        Tracking
-                      </p>
-                      <p className="mt-1 text-sm font-semibold text-chart-3">
-                        {product.users_count} user
-                        {product.users_count === 1 ? "" : "s"}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 p-3">
-                      <p className="flex items-center gap-1.5 text-[11px] font-medium text-yellow-600 dark:text-yellow-400">
-                        <Bell className="size-3" />
-                        Alerts
-                      </p>
-                      <p className="mt-1 text-sm font-semibold text-yellow-600 dark:text-yellow-400">
-                        {product.price_alerts_count}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-border bg-card/80 p-3 dark:border-white/5 dark:bg-muted/60">
-                      <p className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-                        <Clock3 className="size-3" />
-                        Checked
-                      </p>
-                      <p className="mt-1 text-xs leading-4 font-medium">
-                        {product.last_checked_at
-                          ? formatDateTime(product.last_checked_at)
-                          : "Never"}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-border bg-card/80 p-3 dark:border-white/5 dark:bg-muted/60">
-                      <p className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-                        <CalendarDays className="size-3" />
-                        Added
-                      </p>
-                      <p className="mt-1 text-xs leading-4 font-medium">
-                        {formatDateTime(product.created_at)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start justify-end gap-2 xl:flex-col xl:items-stretch">
-                    <div className="ml-auto flex shrink-0 flex-row gap-2 xl:ml-0 xl:flex-col xl:items-stretch">
-                      <a
-                        href={product.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border bg-card/80 px-3 text-xs font-semibold transition-colors hover:bg-muted/60 hover:text-chart-3 dark:border-white/5 dark:bg-muted/60 dark:hover:bg-muted/80"
-                      >
-                        <ExternalLink className="size-3" />
-                        Open
-                      </a>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="h-9 gap-1.5 rounded-xl px-3 text-xs font-semibold"
-                        onClick={() => setDeleteTarget(product)}
-                      >
-                        <Trash2 className="size-3" />
-                        Delete
-                      </Button>
-                    </div>
+                )}
+                <div className="min-w-0 pt-1">
+                  <p className="line-clamp-2 text-sm leading-snug font-semibold">
+                    {product.name}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-xs break-all text-muted-foreground">
+                    {product.url}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                    <span className="rounded-full border border-border bg-card/80 px-2.5 py-1 font-medium capitalize dark:border-white/5 dark:bg-muted/60">
+                      {product.store ?? "unknown store"}
+                    </span>
                   </div>
                 </div>
-              ))
-            )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 xl:grid-cols-1">
+                <div className="rounded-2xl border border-border bg-card/80 p-3 dark:border-white/5 dark:bg-muted/60">
+                  <p className="text-[11px] font-medium text-muted-foreground">
+                    Current price
+                  </p>
+                  <p
+                    className={`mt-1 text-base font-bold ${
+                      product.current_price
+                        ? "text-chart-3"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {product.current_price
+                      ? `${product.current_price} ${product.currency}`
+                      : "Unavailable"}
+                  </p>
+                </div>
+                <div
+                  className={`rounded-2xl border p-3 ${
+                    product.scrape_error
+                      ? "border-destructive/20 bg-destructive/10 dark:bg-destructive/15"
+                      : "border-border bg-card/80 dark:border-white/5 dark:bg-muted/60"
+                  }`}
+                >
+                  <p className="text-[11px] font-medium text-muted-foreground">
+                    Status
+                  </p>
+                  {product.scrape_error ? (
+                    <div className="mt-1 text-destructive">
+                      <p className="inline-flex items-center gap-1.5 text-sm font-bold">
+                        <AlertTriangle className="size-3.5" />
+                        Error
+                      </p>
+                      <p className="mt-1 line-clamp-2 text-xs leading-4">
+                        {product.scrape_error}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-sm font-bold text-chart-3">OK</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-2">
+                <div className="rounded-2xl border border-chart-3/20 bg-chart-3/10 p-3">
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium text-chart-3/80">
+                    <Users className="size-3" />
+                    Tracking
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-chart-3">
+                    {product.users_count} user
+                    {product.users_count === 1 ? "" : "s"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 p-3">
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium text-yellow-600 dark:text-yellow-400">
+                    <Bell className="size-3" />
+                    Alerts
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-yellow-600 dark:text-yellow-400">
+                    {product.price_alerts_count}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border bg-card/80 p-3 dark:border-white/5 dark:bg-muted/60">
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+                    <Clock3 className="size-3" />
+                    Checked
+                  </p>
+                  <p className="mt-1 text-xs leading-4 font-medium">
+                    {product.last_checked_at
+                      ? formatDateTime(product.last_checked_at)
+                      : "Never"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border bg-card/80 p-3 dark:border-white/5 dark:bg-muted/60">
+                  <p className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+                    <CalendarDays className="size-3" />
+                    Added
+                  </p>
+                  <p className="mt-1 text-xs leading-4 font-medium">
+                    {formatDateTime(product.created_at)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start justify-end gap-2 xl:flex-col xl:items-stretch">
+                <div className="ml-auto flex shrink-0 flex-row gap-2 xl:ml-0 xl:flex-col xl:items-stretch">
+                  <a
+                    href={product.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={(event) => event.stopPropagation()}
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border bg-card/80 px-3 text-xs font-semibold transition-colors hover:bg-muted/60 hover:text-chart-3 dark:border-white/5 dark:bg-muted/60 dark:hover:bg-muted/80"
+                  >
+                    <ExternalLink className="size-3" />
+                    Open
+                  </a>
+                  <Button
+                    size="sm"
+                    className="h-9 gap-1.5 rounded-xl bg-destructive px-3 text-xs font-semibold text-destructive-foreground hover:bg-destructive/90"
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      setDeleteTarget(product)
+                    }}
+                  >
+                    <Trash2 className="size-3" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {!loading && total > 0 && (
@@ -457,32 +453,7 @@ export default function AdminProductsPage() {
                   <ChevronLeft className="size-4" />
                 </Button>
 
-                <div className="hidden items-center gap-1 md:flex">
-                  {visiblePages.map((visiblePage, index) =>
-                    typeof visiblePage === "number" ? (
-                      <button
-                        key={visiblePage}
-                        onClick={() => setPage(visiblePage)}
-                        className={`flex h-8 min-w-8 items-center justify-center rounded-full px-3 text-xs font-semibold transition-colors ${
-                          page === visiblePage
-                            ? "bg-primary text-primary-foreground"
-                            : "text-muted-foreground hover:bg-muted"
-                        }`}
-                      >
-                        {visiblePage}
-                      </button>
-                    ) : (
-                      <span
-                        key={`${visiblePage}-${index}`}
-                        className="px-1 text-muted-foreground"
-                      >
-                        {visiblePage}
-                      </span>
-                    )
-                  )}
-                </div>
-
-                <div className="flex h-9 min-w-9 items-center justify-center rounded-full bg-primary px-3 text-sm font-semibold text-primary-foreground md:hidden">
+                <div className="flex h-9 min-w-9 items-center justify-center rounded-full bg-primary px-3 text-sm font-semibold text-primary-foreground md:h-8 md:min-w-8 md:text-xs">
                   {page}
                 </div>
 
@@ -540,9 +511,6 @@ export default function AdminProductsPage() {
               This will permanently delete the product, its price history,
               alerts, and remove it from every user&apos;s wishlist.
             </p>
-            <p className="mt-3 line-clamp-2 text-sm font-semibold">
-              {deleteTarget.name}
-            </p>
 
             <div className="mt-6 flex justify-end gap-2">
               <Button
@@ -553,10 +521,9 @@ export default function AdminProductsPage() {
                 Cancel
               </Button>
               <Button
-                variant="destructive"
                 onClick={hardDeleteProduct}
                 disabled={deleting}
-                className="gap-2"
+                className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
               >
                 {deleting && <Loader2 className="size-4 animate-spin" />}
                 {deleting ? "Deleting..." : "Delete"}

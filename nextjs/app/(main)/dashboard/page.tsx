@@ -221,7 +221,7 @@ export default function Dashboard() {
               ))}
             </div>
           ) : movementRows.length ? (
-            <div className="space-y-3">
+            <div className="no-scrollbar max-h-[560px] space-y-3 overflow-y-auto pr-1">
               {movementRows.map((product, i) => (
                 <Link
                   key={product.id}
@@ -356,7 +356,7 @@ export default function Dashboard() {
               ))}
             </div>
           ) : stats?.store_breakdown.length ? (
-            <div className="space-y-3">
+            <div className="no-scrollbar max-h-[420px] space-y-3 overflow-y-auto pr-1">
               {stats.store_breakdown.map((item, i) => (
                 <div
                   key={item.store}
