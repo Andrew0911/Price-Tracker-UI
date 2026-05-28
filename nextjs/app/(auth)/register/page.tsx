@@ -80,15 +80,15 @@ export default function RegisterPage() {
               of smart shoppers.
             </h1>
             <p className="text-lg text-primary-foreground/70">
-              Create your free account and start saving on every purchase.
+              Create your account and start saving on every purchase.
             </p>
           </div>
 
           {/* Feature list */}
           <div className="space-y-4">
             {[
-              { icon: TrendingDown, text: "Real-time price history charts" },
-              { icon: Bell, text: "Instant drop alerts via email" },
+              { icon: TrendingDown, text: "Accurate price history charts" },
+              { icon: Bell, text: "Drop alerts via email" },
               { icon: Tag, text: "Multiple retailers support" },
             ].map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-3">
@@ -129,7 +129,7 @@ export default function RegisterPage() {
               Create your account
             </h2>
             <p className="text-sm text-muted-foreground">
-              Free forever. No credit card required.
+              Start your smart shopping journey
             </p>
           </div>
 

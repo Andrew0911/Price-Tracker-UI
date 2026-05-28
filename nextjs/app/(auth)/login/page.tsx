@@ -91,8 +91,8 @@ export default function LoginPage() {
             {/* Feature list */}
             <div className="space-y-4">
               {[
-                { icon: TrendingDown, text: "Real-time price history charts" },
-                { icon: Bell, text: "Instant drop alerts via email" },
+                { icon: TrendingDown, text: "Accurate price history charts" },
+                { icon: Bell, text: "Drop alerts via email" },
                 { icon: Tag, text: "Multiple retailers support" },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-3">
