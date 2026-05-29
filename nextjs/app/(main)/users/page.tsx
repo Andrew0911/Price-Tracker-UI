@@ -221,8 +221,7 @@ export default function UsersPage() {
             </Button>
           )}
           <Button
-            variant="destructive"
-            className="w-full gap-2"
+            className="text-destructive-foreground w-full gap-2 bg-destructive hover:bg-destructive/90"
             disabled={target.id === user?.id}
             onClick={() => setDeleteTarget(target)}
           >
@@ -278,7 +277,7 @@ export default function UsersPage() {
       </div>
 
       <div
-        className={`grid min-h-0 flex-1 gap-4 overflow-hidden px-6 transition-[grid-template-columns] duration-300 ease-out ${
+        className={`grid min-h-0 flex-1 gap-4 overflow-hidden px-6 pb-4 transition-[grid-template-columns] duration-300 ease-out ${
           detailsUser ? "lg:grid-cols-[minmax(0,1fr)_360px]" : "lg:grid-cols-1"
         }`}
       >
@@ -286,11 +285,15 @@ export default function UsersPage() {
           <div className="mb-4 text-sm text-muted-foreground">
             {total} user{total === 1 ? "" : "s"}
           </div>
-          <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-0 md:pr-2 md:[&::-webkit-scrollbar]:w-1.5 md:[&::-webkit-scrollbar-thumb]:rounded-full md:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 md:hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 md:[&::-webkit-scrollbar-track]:rounded-full md:[&::-webkit-scrollbar-track]:bg-transparent">
+          <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-3 pr-0 md:pr-2 md:pb-4 md:[&::-webkit-scrollbar]:w-1.5 md:[&::-webkit-scrollbar-thumb]:rounded-full md:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 md:hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 md:[&::-webkit-scrollbar-track]:rounded-full md:[&::-webkit-scrollbar-track]:bg-transparent">
             {loading
-              ? Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-full rounded-2xl" />
-                ))
+              ? (
+                  <div className="flex flex-col gap-2">
+                    {Array.from({ length: perPage }).map((_, i) => (
+                      <Skeleton key={i} className="h-20 w-full rounded-2xl" />
+                    ))}
+                  </div>
+                )
               : users.map((item, i) => (
                   <button
                     key={item.id}
@@ -482,11 +485,11 @@ export default function UsersPage() {
 
       {deleteTarget && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm sm:px-0"
-          onClick={() => setDeleteTarget(null)}
+          className="fixed inset-0 z-50 flex animate-in items-start justify-center bg-black/50 px-4 pt-[20vh] backdrop-blur-sm fade-in-0 sm:px-0"
+          onClick={() => !deleting && setDeleteTarget(null)}
         >
           <div
-            className="w-full max-w-md rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10"
+            className="w-full max-w-md animate-in rounded-3xl bg-card p-8 shadow-xl ring-1 ring-foreground/10 zoom-in-95 slide-in-from-top-2"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5 flex items-center justify-between">
@@ -494,7 +497,7 @@ export default function UsersPage() {
               <button
                 onClick={() => setDeleteTarget(null)}
                 disabled={deleting}
-                className="rounded-lg p-1 text-muted-foreground hover:bg-muted"
+                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive disabled:opacity-50"
               >
                 <X className="size-4" />
               </button>

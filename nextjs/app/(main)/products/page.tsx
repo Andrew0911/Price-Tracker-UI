@@ -248,8 +248,54 @@ export default function AdminProductsPage() {
 
       <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 pb-6 md:pr-8 md:[&::-webkit-scrollbar]:w-1.5 md:[&::-webkit-scrollbar-thumb]:rounded-full md:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 md:hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 md:[&::-webkit-scrollbar-track]:rounded-full md:[&::-webkit-scrollbar-track]:bg-transparent">
         {loading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-44 w-full rounded-2xl md:h-32" />
+          Array.from({ length: perPage }).map((_, i) => (
+            <div
+              key={i}
+              className="grid gap-4 rounded-2xl border border-border bg-muted/35 p-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(230px,0.5fr)_minmax(260px,0.65fr)_auto] xl:items-center dark:border-white/5 dark:bg-muted/55"
+            >
+              <div className="flex min-w-0 gap-4">
+                <Skeleton className="size-24 shrink-0 rounded-2xl" />
+                <div className="min-w-0 flex-1 pt-1">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-2/3" />
+                  </div>
+                  <Skeleton className="mt-2 h-6 w-28 rounded-full" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 xl:grid-cols-1">
+                <div className="rounded-2xl border border-border bg-card/80 p-3 dark:border-white/5 dark:bg-muted/60">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="mt-2 h-5 w-24" />
+                </div>
+                <div className="rounded-2xl border border-border bg-card/80 p-3 dark:border-white/5 dark:bg-muted/60">
+                  <Skeleton className="h-3 w-14" />
+                  <Skeleton className="mt-2 h-5 w-12" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-2">
+                {Array.from({ length: 4 }).map((__, index) => (
+                  <div
+                    key={index}
+                    className="rounded-2xl border border-border bg-card/80 p-3 dark:border-white/5 dark:bg-muted/60"
+                  >
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="mt-2 h-4 w-20" />
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-start justify-end gap-2 xl:flex-col xl:items-stretch">
+                <div className="ml-auto flex shrink-0 flex-row gap-2 xl:ml-0 xl:flex-col xl:items-stretch">
+                  <Skeleton className="h-9 w-20 rounded-xl" />
+                  <Skeleton className="h-9 w-20 rounded-xl" />
+                </div>
+              </div>
+            </div>
           ))
         ) : products.length === 0 ? (
           <div className="flex min-h-52 items-center justify-center rounded-2xl bg-muted/30 text-sm text-muted-foreground">

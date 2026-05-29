@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useNotification } from "@/components/notification"
 import { ChatPanel } from "@/components/chat-panel"
 import { getAvatarGradient, getInitials } from "@/lib/utils"
+import { useResponsiveSkeletonCount } from "@/lib/use-responsive-skeleton-count"
 
 type FriendshipStatus =
   | "none"
@@ -53,11 +54,11 @@ function UserRowSkeleton() {
   return (
     <div className="flex items-center gap-4 rounded-2xl bg-card px-5 py-4 ring-1 ring-foreground/5">
       <Skeleton className="size-12 rounded-full" />
-      <div className="flex flex-1 flex-col gap-2">
-        <Skeleton className="h-4 w-36" />
-        <Skeleton className="h-3 w-52" />
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <Skeleton className="h-4 w-36 max-w-full" />
+        <Skeleton className="h-3 w-52 max-w-full" />
       </div>
-      <Skeleton className="h-9 w-24 rounded-full" />
+      <Skeleton className="h-8 w-8 shrink-0 rounded-full sm:h-9 sm:w-24" />
     </div>
   )
 }
@@ -132,6 +133,13 @@ export default function FriendsPage() {
   } | null>(null)
   const [chatFriend, setChatFriend] = useState<SimpleUser | null>(null)
   const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>({})
+  const [skeletonListRef, skeletonCount] = useResponsiveSkeletonCount({
+    itemHeight: 80,
+    gap: 10,
+    minCount: 1,
+    maxCount: 14,
+    extraRows: 0,
+  })
 
   const loadFriends = useCallback(async () => {
     try {
@@ -476,11 +484,18 @@ export default function FriendsPage() {
         </div>
       </div>
       {/* Content scrollable */}
-      <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto px-6 pt-2 pb-6">
+      <div
+        ref={skeletonListRef}
+        className={`flex flex-1 flex-col gap-2.5 px-6 pt-2 pb-6 ${
+          discoverLoading ? "overflow-hidden" : "overflow-y-auto"
+        }`}
+      >
         {/* Discover */}
         {tab === "discover" &&
           (discoverLoading ? (
-            Array.from({ length: 5 }).map((_, i) => <UserRowSkeleton key={i} />)
+            Array.from({ length: skeletonCount }).map((_, i) => (
+              <UserRowSkeleton key={i} />
+            ))
           ) : discoverUsers.length === 0 ? (
             <EmptyState
               icon={Sparkles}

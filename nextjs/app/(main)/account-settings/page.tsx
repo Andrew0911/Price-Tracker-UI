@@ -187,9 +187,9 @@ export default function AccountSettingsPage() {
             {!showDeleteConfirm ? (
               <div className="flex justify-end">
                 <Button
-                  variant="destructive"
                   size="sm"
                   onClick={() => setShowDeleteConfirm(true)}
+                  className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
                 >
                   Delete account
                 </Button>

@@ -348,18 +348,24 @@ export default function Wishlist() {
       <div className="no-scrollbar flex-1 overflow-y-auto px-4 md:mr-3 md:px-6 md:pr-8">
         {loading ? (
           <div className="mx-auto grid w-full max-w-sm grid-cols-1 gap-3 sm:max-w-none sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: perPage > 12 ? 12 : perPage }).map((_, i) => (
+            {Array.from({ length: perPage }).map((_, i) => (
               <div
                 key={i}
-                className="overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5"
+                className="group relative flex flex-col overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5"
               >
-                <Skeleton className="h-52 w-full rounded-none" />
-                <div className="flex flex-col gap-2.5 p-4">
-                  <Skeleton className="h-3.5 w-full" />
-                  <Skeleton className="h-3.5 w-2/3" />
-                  <div className="mt-2 flex items-center justify-between">
-                    <Skeleton className="h-5 w-1/3" />
-                    <Skeleton className="h-8 w-16 rounded-2xl" />
+                <div className="relative h-52 w-full shrink-0 overflow-hidden bg-white">
+                  <Skeleton className="h-full w-full rounded-none" />
+                </div>
+
+                <div className="flex flex-1 flex-col gap-3 p-4">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-4/5" />
+                  </div>
+
+                  <div className="mt-auto flex items-center justify-between">
+                    <Skeleton className="h-6 w-28" />
+                    <Skeleton className="h-8 w-20 rounded-2xl" />
                   </div>
                 </div>
               </div>

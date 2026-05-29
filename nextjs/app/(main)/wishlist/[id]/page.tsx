@@ -326,16 +326,16 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <div className="flex min-h-full flex-col">
-        <div className="flex shrink-0 items-center gap-3 px-6 py-4">
+        <div className="flex w-full shrink-0 items-center gap-3 px-4 py-4 sm:px-6 2xl:px-8">
           <Skeleton className="h-8 w-20 rounded-2xl" />
-          <Skeleton className="h-5 w-64" />
+          <Skeleton className="h-5 w-64 max-w-[55vw]" />
         </div>
-        <div className="min-h-0 flex-1 px-6 pb-10">
-          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
-            <Skeleton className="h-full rounded-3xl" />
-            <div className="flex flex-col gap-6">
-              <Skeleton className="flex-1 rounded-3xl" />
-              <Skeleton className="h-48 shrink-0 rounded-3xl" />
+        <div className="min-h-0 flex-1 px-4 pb-6 sm:px-6 2xl:px-8">
+          <div className="grid min-h-[calc(100vh-6.5rem)] w-full grid-cols-1 items-stretch gap-6 xl:grid-cols-2">
+            <Skeleton className="min-h-[620px] rounded-3xl" />
+            <div className="flex min-h-[620px] flex-col gap-6">
+              <Skeleton className="min-h-[360px] flex-1 rounded-3xl" />
+              <Skeleton className="h-[260px] shrink-0 rounded-3xl" />
             </div>
           </div>
         </div>
@@ -348,7 +348,7 @@ export default function ProductDetail() {
   return (
     <div className="flex min-h-full flex-col">
       {/* Top bar */}
-      <div className="flex shrink-0 items-center gap-3 px-6 py-4">
+      <div className="flex w-full shrink-0 items-center gap-3 px-4 py-4 sm:px-6 2xl:px-8">
         <Button
           variant="outline"
           size="sm"
@@ -362,12 +362,12 @@ export default function ProductDetail() {
       </div>
 
       {/* Cards fill remaining space */}
-      <div className="px-6 pb-6">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="flex flex-1 px-4 pb-6 sm:px-6 2xl:px-8">
+        <div className="grid min-h-[calc(100vh-6.5rem)] w-full grid-cols-1 items-stretch gap-6 xl:grid-cols-2">
           {/* LEFT — Product details card */}
-          <div className="flex animate-in flex-col overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">
+          <div className="flex h-full animate-in flex-col overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-foreground/5 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">
             {/* Image */}
-            <div className="relative h-72 w-full shrink-0 overflow-hidden bg-white">
+            <div className="relative h-[clamp(18rem,30vh,26rem)] w-full shrink-0 overflow-hidden bg-white">
               {product.image_url ? (
                 <Image
                   src={product.image_url}
@@ -376,7 +376,7 @@ export default function ProductDetail() {
                   unoptimized
                   referrerPolicy="no-referrer"
                   className="object-contain p-6 transition-transform duration-500 hover:scale-[1.03]"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  sizes="(max-width: 1280px) 100vw, 45vw"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
@@ -513,8 +513,8 @@ export default function ProductDetail() {
             style={{ animationDelay: "75ms" }}
           >
             {/* Price history chart — grows to fill */}
-            <div className="flex h-[360px] flex-col gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5">
-              <div className="flex shrink-0 items-start justify-between">
+            <div className="flex min-h-[clamp(22.5rem,36vh,32rem)] flex-1 flex-col gap-4 rounded-3xl bg-card p-5 shadow-sm ring-1 ring-foreground/5 sm:p-6">
+              <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h3 className="font-semibold">Price history</h3>
                   <p className="text-xs text-muted-foreground">
@@ -522,7 +522,7 @@ export default function ProductDetail() {
                   </p>
                 </div>
                 {chartData.length >= 1 && (
-                  <div className="flex gap-2 text-xs">
+                  <div className="flex flex-wrap gap-2 text-xs sm:justify-end">
                     <span className="rounded-lg bg-muted px-2.5 py-1 font-medium">
                       Min:{" "}
                       <span className="text-chart-3">
