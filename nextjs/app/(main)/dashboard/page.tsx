@@ -14,6 +14,7 @@ import { api } from "@/lib/api"
 import { useErrorHandler } from "@/lib/use-error-handler"
 import { useUser } from "@/lib/user-context"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useResponsiveSkeletonCount } from "@/lib/use-responsive-skeleton-count"
 
 type Stats = {
   total_tracked: number
@@ -83,6 +84,37 @@ const STAT_CARDS = (stats: Stats) => [
   },
 ]
 
+function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  iconClassName = "text-primary",
+  iconWrapClassName = "bg-primary/10 ring-primary/20",
+}: {
+  icon: React.ElementType
+  title: string
+  description: string
+  iconClassName?: string
+  iconWrapClassName?: string
+}) {
+  return (
+    <div
+      key={title}
+      className="flex min-h-52 flex-1 animate-in flex-col items-center justify-center gap-4 py-8 duration-300 fill-mode-both fade-in slide-in-from-bottom-3"
+    >
+      <div
+        className={`flex size-18 items-center justify-center rounded-3xl p-4 ring-1 ${iconWrapClassName}`}
+      >
+        <Icon className={`size-9 ${iconClassName}`} />
+      </div>
+      <div className="text-center">
+        <p className="text-base font-semibold">{title}</p>
+        <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -91,6 +123,23 @@ export default function Dashboard() {
   )
   const { handleError } = useErrorHandler()
   const { user } = useUser()
+  const [movementSkeletonRef, movementSkeletonCount] =
+    useResponsiveSkeletonCount({
+      itemHeight: 64,
+      gap: 12,
+      minCount: 3,
+      maxCount: 12,
+      extraRows: 0,
+      rounding: "ceil",
+    })
+  const [storeSkeletonRef, storeSkeletonCount] = useResponsiveSkeletonCount({
+    itemHeight: 48,
+    gap: 12,
+    minCount: 3,
+    maxCount: 12,
+    extraRows: 0,
+    rounding: "ceil",
+  })
 
   useEffect(() => {
     api
@@ -168,8 +217,8 @@ export default function Dashboard() {
             ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 px-6 pb-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
-        <div className="rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5">
+      <div className="grid grid-cols-1 items-stretch gap-4 px-6 pb-6 xl:min-h-[calc(100vh-28rem)] xl:flex-1 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
+        <div className="flex min-h-0 flex-col rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5">
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h2 className="font-semibold">
@@ -215,13 +264,16 @@ export default function Dashboard() {
           </div>
 
           {loading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              ref={movementSkeletonRef}
+              className="min-h-52 flex-1 space-y-3 overflow-hidden"
+            >
+              {Array.from({ length: movementSkeletonCount }).map((_, i) => (
                 <Skeleton key={i} className="h-16 w-full rounded-2xl" />
               ))}
             </div>
           ) : movementRows.length ? (
-            <div className="no-scrollbar max-h-[560px] space-y-3 overflow-y-auto pr-1">
+            <div className="no-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
               {movementRows.map((product, i) => (
                 <Link
                   key={product.id}
@@ -330,15 +382,27 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <div className="flex min-h-52 items-center justify-center rounded-2xl bg-muted/30 text-sm text-muted-foreground">
-              {movementView === "drops"
-                ? "No price drops yet."
-                : "No price increases yet."}
-            </div>
+            <EmptyState
+              icon={movementView === "drops" ? TrendingDown : TrendingUp}
+              title={
+                movementView === "drops"
+                  ? "No price drops yet"
+                  : "No price increases yet"
+              }
+              description="Price movement will appear here once tracked products change."
+              iconClassName={
+                movementView === "drops" ? "text-chart-3" : "text-destructive"
+              }
+              iconWrapClassName={
+                movementView === "drops"
+                  ? "bg-chart-3/10 ring-chart-3/20"
+                  : "bg-destructive/10 ring-destructive/20"
+              }
+            />
           )}
         </div>
 
-        <div className="rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5">
+        <div className="flex min-h-0 flex-col rounded-3xl bg-card p-6 shadow-sm ring-1 ring-foreground/5">
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h2 className="font-semibold">Store breakdown</h2>
@@ -350,13 +414,16 @@ export default function Dashboard() {
           </div>
 
           {loading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              ref={storeSkeletonRef}
+              className="min-h-52 flex-1 space-y-3 overflow-hidden"
+            >
+              {Array.from({ length: storeSkeletonCount }).map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full rounded-2xl" />
               ))}
             </div>
           ) : stats?.store_breakdown.length ? (
-            <div className="no-scrollbar max-h-[420px] space-y-3 overflow-y-auto pr-1">
+            <div className="no-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
               {stats.store_breakdown.map((item, i) => (
                 <div
                   key={item.store}
@@ -373,9 +440,11 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <div className="flex min-h-52 items-center justify-center rounded-2xl bg-muted/30 text-sm text-muted-foreground">
-              No tracked products yet.
-            </div>
+            <EmptyState
+              icon={Store}
+              title="No tracked products yet"
+              description="Store breakdown will appear after you start tracking products."
+            />
           )}
         </div>
       </div>

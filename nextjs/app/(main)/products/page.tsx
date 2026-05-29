@@ -58,6 +58,26 @@ function errorMessage(err: unknown, fallback: string) {
   return err instanceof Error ? err.message : fallback
 }
 
+function EmptyState({
+  title,
+  description,
+}: {
+  title: string
+  description: string
+}) {
+  return (
+    <div className="flex animate-in flex-col items-center justify-center gap-4 py-24 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">
+      <div className="flex size-18 items-center justify-center rounded-3xl bg-primary/10 p-4 ring-1 ring-primary/20">
+        <PackageSearch className="size-9 text-primary" />
+      </div>
+      <div className="text-center">
+        <p className="text-base font-semibold">{title}</p>
+        <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminProductsPage() {
   const router = useRouter()
   const { user } = useUser()
@@ -298,9 +318,14 @@ export default function AdminProductsPage() {
             </div>
           ))
         ) : products.length === 0 ? (
-          <div className="flex min-h-52 items-center justify-center rounded-2xl bg-muted/30 text-sm text-muted-foreground">
-            No products found.
-          </div>
+          <EmptyState
+            title={query.trim() ? "No matches" : "No products found"}
+            description={
+              query.trim()
+                ? `No products matching "${query.trim()}"`
+                : "Tracked products will appear here once they are added."
+            }
+          />
         ) : (
           products.map((product, i) => (
             <div

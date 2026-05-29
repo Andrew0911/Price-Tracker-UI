@@ -10,6 +10,7 @@ type ResponsiveSkeletonCountOptions = {
   itemMinWidth?: number
   maxColumns?: number
   extraRows?: number
+  rounding?: "floor" | "ceil"
 }
 
 function resolveResponsiveValue(
@@ -27,9 +28,15 @@ export function useResponsiveSkeletonCount({
   itemMinWidth,
   maxColumns,
   extraRows = 1,
+  rounding = "floor",
 }: ResponsiveSkeletonCountOptions) {
   const ref = useRef<HTMLDivElement | null>(null)
+  const roundingRef = useRef(rounding)
   const [count, setCount] = useState(minCount)
+
+  useEffect(() => {
+    roundingRef.current = rounding
+  }, [rounding])
 
   useEffect(() => {
     const element = ref.current
@@ -51,10 +58,11 @@ export function useResponsiveSkeletonCount({
         const columns = maxColumns
           ? Math.min(maxColumns, measuredColumns)
           : measuredColumns
-        const rows = Math.max(
-          1,
-          Math.floor((height + gap) / (resolvedItemHeight + gap)) + extraRows
-        )
+        const rowCount =
+          roundingRef.current === "ceil"
+            ? Math.ceil((height + gap) / (resolvedItemHeight + gap))
+            : Math.floor((height + gap) / (resolvedItemHeight + gap))
+        const rows = Math.max(1, rowCount + extraRows)
         const nextCount = Math.min(
           resolvedMaxCount,
           Math.max(minCount, rows * columns)

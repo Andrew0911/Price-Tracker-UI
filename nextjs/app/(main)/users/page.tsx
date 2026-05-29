@@ -43,6 +43,26 @@ function errorMessage(err: unknown, fallback: string) {
   return err instanceof Error ? err.message : fallback
 }
 
+function EmptyState({
+  title,
+  description,
+}: {
+  title: string
+  description: string
+}) {
+  return (
+    <div className="flex animate-in flex-col items-center justify-center gap-4 py-24 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">
+      <div className="flex size-18 items-center justify-center rounded-3xl bg-primary/10 p-4 ring-1 ring-primary/20">
+        <ShieldUser className="size-9 text-primary" />
+      </div>
+      <div className="text-center">
+        <p className="text-base font-semibold">{title}</p>
+        <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  )
+}
+
 export default function UsersPage() {
   const { user } = useUser()
   const { notify } = useNotification()
@@ -281,10 +301,12 @@ export default function UsersPage() {
           detailsUser ? "lg:grid-cols-[minmax(0,1fr)_360px]" : "lg:grid-cols-1"
         }`}
       >
-        <div className="flex min-h-0 flex-col overflow-hidden rounded-3xl bg-card p-4 shadow-sm ring-1 ring-foreground/5">
-          <div className="mb-4 text-sm text-muted-foreground">
-            {total} user{total === 1 ? "" : "s"}
-          </div>
+        <div className="flex min-h-0 flex-col overflow-hidden">
+          {!loading && total > 0 && (
+            <div className="mb-4 text-sm text-muted-foreground">
+              {total} user{total === 1 ? "" : "s"}
+            </div>
+          )}
           <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-3 pr-0 md:pr-2 md:pb-4 md:[&::-webkit-scrollbar]:w-1.5 md:[&::-webkit-scrollbar-thumb]:rounded-full md:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 md:hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50 md:[&::-webkit-scrollbar-track]:rounded-full md:[&::-webkit-scrollbar-track]:bg-transparent">
             {loading
               ? (
@@ -294,14 +316,24 @@ export default function UsersPage() {
                     ))}
                   </div>
                 )
+              : users.length === 0 ? (
+                  <EmptyState
+                    title={query.trim() ? "No matches" : "No users found"}
+                    description={
+                      query.trim()
+                        ? `No users matching "${query.trim()}"`
+                        : "User accounts will appear here once they are created."
+                    }
+                  />
+                )
               : users.map((item, i) => (
                   <button
                     key={item.id}
                     onClick={() => setSelectedUser(item)}
-                    className={`flex w-full animate-in items-center justify-between rounded-2xl border p-4 text-left transition-colors duration-300 fill-mode-both fade-in slide-in-from-bottom-3 ${
+                    className={`flex w-full animate-in items-center justify-between rounded-2xl border bg-muted/35 p-4 text-left transition-colors duration-300 fill-mode-both fade-in slide-in-from-bottom-3 dark:border-white/5 dark:bg-muted/55 ${
                       selectedUser?.id === item.id
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:bg-muted/40"
+                        ? "border-primary bg-primary/5 dark:bg-primary/10"
+                        : "border-border hover:bg-muted/55 dark:hover:bg-muted/70"
                     }`}
                     style={{ animationDelay: `${i * 50}ms` }}
                   >

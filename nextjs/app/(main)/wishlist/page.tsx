@@ -49,6 +49,28 @@ type ProductsResponse = {
 
 const PER_PAGE_OPTIONS = [6, 12, 24, 48]
 
+function EmptyState({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ElementType
+  title: string
+  description: string
+}) {
+  return (
+    <div className="flex animate-in flex-col items-center justify-center gap-4 py-24 duration-300 fill-mode-both fade-in slide-in-from-bottom-3">
+      <div className="flex size-18 items-center justify-center rounded-3xl bg-primary/10 p-4 ring-1 ring-primary/20">
+        <Icon className="size-9 text-primary" />
+      </div>
+      <div className="text-center">
+        <p className="text-base font-semibold">{title}</p>
+        <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  )
+}
+
 export default function Wishlist() {
   const [products, setProducts] = useState<Product[]>([])
   const [page, setPage] = useState(1)
@@ -372,10 +394,15 @@ export default function Wishlist() {
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 py-32 text-muted-foreground">
-            <ShoppingCart className="size-12 opacity-30" />
-            <p className="text-base">Your wishlist is empty.</p>
-          </div>
+          <EmptyState
+            icon={ShoppingCart}
+            title={debouncedSearch ? "No matches" : "Your wishlist is empty"}
+            description={
+              debouncedSearch
+                ? `No products matching "${debouncedSearch}"`
+                : "Products you track will appear here."
+            }
+          />
         ) : (
           <div className="mx-auto grid w-full max-w-sm grid-cols-1 gap-3 sm:max-w-none sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product, i) => (
