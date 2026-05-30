@@ -138,6 +138,18 @@ body {
   }
 }
 
+@layer components {
+  :where(.rounded-2xl, .rounded-3xl, .rounded-4xl).bg-card,
+  :where(.rounded-2xl, .rounded-3xl, .rounded-4xl).bg-card\/80 {
+    border: 1px solid color-mix(in oklch, var(--border) 78%, transparent);
+  }
+
+  .dark :where(.rounded-2xl, .rounded-3xl, .rounded-4xl).bg-card,
+  .dark :where(.rounded-2xl, .rounded-3xl, .rounded-4xl).bg-card\/80 {
+    border-color: color-mix(in oklch, var(--foreground) 10%, transparent);
+  }
+}
+
 @media (max-width: 767px) {
   * {
     scrollbar-width: none;

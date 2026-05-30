@@ -663,6 +663,7 @@ export default function FriendsPage() {
                 Cancel
               </Button>
               <Button
+                variant="destructive"
                 disabled={pendingIds.has(removeTarget.id)}
                 onClick={async () => {
                   await handleAction(
@@ -672,7 +673,7 @@ export default function FriendsPage() {
                   )
                   setRemoveTarget(null)
                 }}
-                className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
+                className="gap-2"
               >
                 {pendingIds.has(removeTarget.id) && (
                   <Loader2 className="size-4 animate-spin" />

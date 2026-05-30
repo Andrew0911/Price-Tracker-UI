@@ -187,9 +187,10 @@ export default function AccountSettingsPage() {
             {!showDeleteConfirm ? (
               <div className="flex justify-end">
                 <Button
+                  variant="destructive"
                   size="sm"
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
+                  className="gap-2"
                 >
                   Delete account
                 </Button>
@@ -250,10 +251,11 @@ export default function AccountSettingsPage() {
                     Cancel
                   </Button>
                   <Button
+                    variant="destructive"
                     size="sm"
                     disabled={!deletePassword || deleting}
                     onClick={handleDeleteAccount}
-                    className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
+                    className="gap-2"
                   >
                     {deleting && (
                       <Loader2 className="mr-1.5 size-3.5 animate-spin" />

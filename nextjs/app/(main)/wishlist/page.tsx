@@ -440,8 +440,8 @@ export default function Wishlist() {
                     </span>
                   )}
                   {product.scrape_error && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-[3px]">
-                      <span className="text-sm font-semibold tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/25 backdrop-blur-[2px] dark:bg-black/55">
+                      <span className="text-sm font-semibold tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.75)]">
                         Product unavailable
                       </span>
                     </div>

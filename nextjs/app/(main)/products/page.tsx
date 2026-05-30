@@ -470,8 +470,9 @@ export default function AdminProductsPage() {
                     Open
                   </a>
                   <Button
+                    variant="destructive"
                     size="sm"
-                    className="h-9 gap-1.5 rounded-xl bg-destructive px-3 text-xs font-semibold text-destructive-foreground hover:bg-destructive/90"
+                    className="h-9 gap-1.5 rounded-xl px-3 text-xs font-semibold"
                     onClick={(event) => {
                       event.stopPropagation()
                       setDeleteTarget(product)
@@ -592,9 +593,10 @@ export default function AdminProductsPage() {
                 Cancel
               </Button>
               <Button
+                variant="destructive"
                 onClick={hardDeleteProduct}
                 disabled={deleting}
-                className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
+                className="gap-2"
               >
                 {deleting && <Loader2 className="size-4 animate-spin" />}
                 {deleting ? "Deleting..." : "Delete"}

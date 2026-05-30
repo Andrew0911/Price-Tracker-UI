@@ -392,8 +392,8 @@ export default function ProductDetail() {
                 </div>
               )}
               {product.scrape_error && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[3px]">
-                  <span className="text-sm font-semibold tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[2px] dark:bg-black/55">
+                  <span className="text-sm font-semibold tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.75)]">
                     Product unavailable
                   </span>
                 </div>
@@ -491,8 +491,8 @@ export default function ProductDetail() {
                   </Button>
                 </Link>
                 <Button
-                  variant="outline"
-                  className="w-full gap-2 text-destructive hover:bg-destructive/10"
+                  variant="destructive"
+                  className="w-full gap-2"
                   onClick={() => setDeleteModalOpen(true)}
                   disabled={deletingProduct || !canManageWishlistProduct}
                 >
@@ -680,9 +680,9 @@ export default function ProductDetail() {
                           {targetAlert.target_price} {product.currency}
                         </div>
                         <Button
-                          variant="ghost"
+                          variant="destructive"
                           size="sm"
-                          className="hover:text-destructive-foreground h-8 shrink-0 gap-1.5 px-2.5 text-xs font-semibold text-destructive hover:bg-destructive"
+                          className="h-8 shrink-0 gap-1.5 px-2.5 text-xs font-semibold"
                           onClick={handleDeleteAlert}
                           disabled={deletingAlert || !canManageWishlistProduct}
                         >
@@ -801,9 +801,10 @@ export default function ProductDetail() {
                 Cancel
               </Button>
               <Button
+                variant="destructive"
                 onClick={performDeleteProduct}
                 disabled={deletingProduct}
-                className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
+                className="gap-2"
               >
                 {deletingProduct && <Loader2 className="size-4 animate-spin" />}
                 {deletingProduct ? "Removing..." : "Remove"}

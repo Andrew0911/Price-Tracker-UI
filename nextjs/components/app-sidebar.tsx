@@ -326,9 +326,10 @@ export function AppSidebar() {
                 Cancel
               </Button>
               <Button
+                variant="destructive"
                 disabled={loggingOut}
                 onClick={handleLogout}
-                className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
+                className="gap-2"
               >
                 {loggingOut && (
                   <Loader2 className="size-4 animate-spin" />

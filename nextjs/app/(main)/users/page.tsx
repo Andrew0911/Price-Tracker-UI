@@ -241,7 +241,8 @@ export default function UsersPage() {
             </Button>
           )}
           <Button
-            className="text-destructive-foreground w-full gap-2 bg-destructive hover:bg-destructive/90"
+            variant="destructive"
+            className="w-full gap-2"
             disabled={target.id === user?.id}
             onClick={() => setDeleteTarget(target)}
           >
@@ -550,9 +551,10 @@ export default function UsersPage() {
                 Cancel
               </Button>
               <Button
+                variant="destructive"
                 onClick={handleDeleteUser}
                 disabled={deleting}
-                className="text-destructive-foreground gap-2 bg-destructive hover:bg-destructive/90"
+                className="gap-2"
               >
                 {deleting && <Loader2 className="size-4 animate-spin" />}
                 {deleting ? "Deleting..." : "Delete"}
