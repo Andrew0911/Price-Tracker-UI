@@ -675,21 +675,26 @@ export default function ProductDetail() {
                     </div>
 
                     {targetAlert ? (
-                      <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                        <div className="rounded-full bg-chart-3/10 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-chart-3">
-                          {targetAlert.target_price} {product.currency}
+                      <div className="hidden flex-wrap items-center gap-2 md:flex md:justify-end">
+                        <div className="rounded-full bg-chart-3/10 px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-chart-3 ring-1 ring-chart-3/15">
+                          <span className="mr-1.5 font-medium text-chart-3/75">
+                            Current target:
+                          </span>
+                          <span>
+                            {targetAlert.target_price} {product.currency}
+                          </span>
                         </div>
                         <Button
                           variant="destructive"
                           size="sm"
-                          className="h-8 shrink-0 gap-1.5 px-2.5 text-xs font-semibold"
+                          className="h-8 shrink-0 gap-1.5 px-2.5 text-sm font-semibold"
                           onClick={handleDeleteAlert}
                           disabled={deletingAlert || !canManageWishlistProduct}
                         >
                           {deletingAlert ? (
-                            <Loader2 className="size-3 animate-spin" />
+                            <Loader2 className="size-3.5 animate-spin" />
                           ) : (
-                            <BellOff className="size-3" />
+                            <BellOff className="size-3.5" />
                           )}
                           Remove
                         </Button>
@@ -697,7 +702,34 @@ export default function ProductDetail() {
                     ) : null}
                   </div>
 
-                  <div className="flex flex-col gap-2 md:flex-row md:pl-15">
+                  {targetAlert ? (
+                    <div className="flex items-center justify-between gap-3 rounded-2xl bg-chart-3/8 px-3.5 py-2.5 ring-1 ring-chart-3/15 md:hidden">
+                      <div className="min-w-0 rounded-full bg-chart-3/10 px-3 py-1.5 font-semibold whitespace-nowrap text-chart-3">
+                        <span className="mr-1.5 text-sm font-medium text-chart-3/75">
+                          Current target:
+                        </span>
+                        <span className="text-sm">
+                          {targetAlert.target_price} {product.currency}
+                        </span>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="h-8 shrink-0 gap-1.5 rounded-xl px-2.5 text-sm font-semibold"
+                        onClick={handleDeleteAlert}
+                        disabled={deletingAlert || !canManageWishlistProduct}
+                      >
+                        {deletingAlert ? (
+                          <Loader2 className="size-3.5 animate-spin" />
+                        ) : (
+                          <BellOff className="size-3.5" />
+                        )}
+                        Remove
+                      </Button>
+                    </div>
+                  ) : null}
+
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 md:flex md:flex-row md:pl-15">
                     <Input
                       type="number"
                       placeholder={`Target price (${product.currency})`}
@@ -711,7 +743,7 @@ export default function ProductDetail() {
                       }
                       min={0}
                       step={0.01}
-                      className="bg-card"
+                      className="min-w-0 bg-card"
                     />
                     <Button
                       onClick={handleSaveAlert}
@@ -721,7 +753,7 @@ export default function ProductDetail() {
                         !!product.scrape_error ||
                         !canManageWishlistProduct
                       }
-                      className="shrink-0 gap-2"
+                      className="shrink-0 justify-center gap-2 whitespace-nowrap"
                     >
                       {savingAlert ? (
                         <Loader2 className="size-4 animate-spin" />
@@ -792,11 +824,12 @@ export default function ProductDetail() {
               You will be able to add it again at need.
             </p>
 
-            <div className="mt-6 flex justify-end gap-2">
+            <div className="mt-6 flex items-center justify-end gap-2">
               <Button
                 variant="outline"
                 onClick={() => setDeleteModalOpen(false)}
                 disabled={deletingProduct}
+                className="shrink-0"
               >
                 Cancel
               </Button>
@@ -804,9 +837,11 @@ export default function ProductDetail() {
                 variant="destructive"
                 onClick={performDeleteProduct}
                 disabled={deletingProduct}
-                className="gap-2"
+                className="min-w-0 justify-center gap-2 whitespace-nowrap"
               >
-                {deletingProduct && <Loader2 className="size-4 animate-spin" />}
+                {deletingProduct && (
+                  <Loader2 className="size-4 shrink-0 animate-spin" />
+                )}
                 {deletingProduct ? "Removing..." : "Remove"}
               </Button>
             </div>

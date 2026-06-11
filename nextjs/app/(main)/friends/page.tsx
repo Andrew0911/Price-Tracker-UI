@@ -664,11 +664,12 @@ export default function FriendsPage() {
               from your friends list? You can always send a new request later.
             </p>
 
-            <div className="mt-6 flex justify-end gap-2">
+            <div className="mt-6 flex items-center justify-end gap-2">
               <Button
                 variant="outline"
                 onClick={() => setRemoveTarget(null)}
                 disabled={pendingIds.has(removeTarget.id)}
+                className="shrink-0"
               >
                 Cancel
               </Button>
@@ -683,10 +684,10 @@ export default function FriendsPage() {
                   )
                   setRemoveTarget(null)
                 }}
-                className="gap-2"
+                className="min-w-0 justify-center gap-2 whitespace-nowrap"
               >
                 {pendingIds.has(removeTarget.id) && (
-                  <Loader2 className="size-4 animate-spin" />
+                  <Loader2 className="size-4 shrink-0 animate-spin" />
                 )}
                 {pendingIds.has(removeTarget.id) ? "Removing..." : "Remove"}
               </Button>

@@ -559,11 +559,12 @@ export default function UsersPage() {
               </span>
               ? This action cannot be undone.
             </p>
-            <div className="mt-6 flex justify-end gap-2">
+            <div className="mt-6 flex items-center justify-end gap-2">
               <Button
                 variant="outline"
                 onClick={() => setDeleteTarget(null)}
                 disabled={deleting}
+                className="shrink-0"
               >
                 Cancel
               </Button>
@@ -571,9 +572,9 @@ export default function UsersPage() {
                 variant="destructive"
                 onClick={handleDeleteUser}
                 disabled={deleting}
-                className="gap-2"
+                className="min-w-0 justify-center gap-2 whitespace-nowrap"
               >
-                {deleting && <Loader2 className="size-4 animate-spin" />}
+                {deleting && <Loader2 className="size-4 shrink-0 animate-spin" />}
                 {deleting ? "Deleting..." : "Delete"}
               </Button>
             </div>
@@ -608,20 +609,23 @@ export default function UsersPage() {
               an admin? They will lose access to social features like friends and
               messaging.
             </p>
-            <div className="mt-6 flex justify-end gap-2">
+            <div className="mt-6 flex items-center justify-end gap-2">
               <Button
                 variant="outline"
                 onClick={() => setPromoteTarget(null)}
                 disabled={promoting}
+                className="shrink-0"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handlePromoteUser}
                 disabled={promoting}
-                className="gap-2"
+                className="min-w-0 justify-center gap-2 whitespace-nowrap"
               >
-                {promoting && <Loader2 className="size-4 animate-spin" />}
+                {promoting && (
+                  <Loader2 className="size-4 shrink-0 animate-spin" />
+                )}
                 {promoting ? "Promoting..." : "Make admin"}
               </Button>
             </div>

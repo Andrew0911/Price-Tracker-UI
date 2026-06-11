@@ -232,10 +232,11 @@ export default function AccountSettingsPage() {
                     </button>
                   </div>
                 </div>
-                <div className="flex items-center justify-between gap-3 pt-1">
+                <div className="flex items-center justify-between gap-2 pt-1">
                   <Button
                     variant="outline"
                     size="sm"
+                    className="shrink-0"
                     onClick={() => {
                       setShowDeleteConfirm(false)
                       setDeletePassword("")
@@ -249,10 +250,10 @@ export default function AccountSettingsPage() {
                     size="sm"
                     disabled={!deletePassword || deleting}
                     onClick={handleDeleteAccount}
-                    className="gap-2"
+                    className="min-w-0 flex-1 justify-center gap-2 whitespace-nowrap text-xs sm:flex-none sm:text-sm"
                   >
                     {deleting && (
-                      <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                      <Loader2 className="size-3.5 shrink-0 animate-spin" />
                     )}
                     Yes, delete my account
                   </Button>

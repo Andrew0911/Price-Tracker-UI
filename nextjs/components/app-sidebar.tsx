@@ -317,11 +317,12 @@ export function AppSidebar() {
               to access your wishlist, friends, and alerts.
             </p>
 
-            <div className="mt-6 flex justify-end gap-2">
+            <div className="mt-6 flex items-center justify-end gap-2">
               <Button
                 variant="outline"
                 disabled={loggingOut}
                 onClick={() => setShowLogoutConfirm(false)}
+                className="shrink-0"
               >
                 Cancel
               </Button>
@@ -329,10 +330,10 @@ export function AppSidebar() {
                 variant="destructive"
                 disabled={loggingOut}
                 onClick={handleLogout}
-                className="gap-2"
+                className="min-w-0 justify-center gap-2 whitespace-nowrap"
               >
                 {loggingOut && (
-                  <Loader2 className="size-4 animate-spin" />
+                  <Loader2 className="size-4 shrink-0 animate-spin" />
                 )}
                 {loggingOut ? "Logging out..." : "Logout"}
               </Button>

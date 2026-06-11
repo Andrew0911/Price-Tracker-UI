@@ -647,20 +647,21 @@ export default function Wishlist() {
                 />
               </div>
 
-              <div className="flex justify-end gap-2">
+              <div className="flex items-center justify-end gap-2">
                 <Button
                   variant="outline"
                   onClick={closeModal}
                   disabled={adding}
+                  className="shrink-0"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleAdd}
                   disabled={adding || !url.trim()}
-                  className="gap-2"
+                  className="min-w-0 justify-center gap-2 whitespace-nowrap"
                 >
-                  {adding && <Loader2 className="size-4 animate-spin" />}
+                  {adding && <Loader2 className="size-4 shrink-0 animate-spin" />}
                   {adding ? "Adding..." : "Add"}
                 </Button>
               </div>

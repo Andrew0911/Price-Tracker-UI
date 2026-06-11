@@ -268,11 +268,18 @@ export function ProductFilterModal({
             </Popover>
           </div>
 
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={handleClear}>
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={handleClear}
+              className="shrink-0"
+            >
               Clear
             </Button>
-            <Button onClick={handleApply} className="gap-2">
+            <Button
+              onClick={handleApply}
+              className="min-w-0 justify-center gap-2 whitespace-nowrap"
+            >
               Apply
             </Button>
           </div>
