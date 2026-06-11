@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import {
   ShoppingCart,
@@ -12,7 +13,6 @@ import {
 } from "lucide-react"
 import { api } from "@/lib/api"
 import { useErrorHandler } from "@/lib/use-error-handler"
-import { useUser } from "@/lib/user-context"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useResponsiveSkeletonCount } from "@/lib/use-responsive-skeleton-count"
 
@@ -122,7 +122,6 @@ export default function Dashboard() {
     "drops"
   )
   const { handleError } = useErrorHandler()
-  const { user } = useUser()
   const [movementSkeletonRef, movementSkeletonCount] =
     useResponsiveSkeletonCount({
       itemHeight: 64,
@@ -150,7 +149,7 @@ export default function Dashboard() {
       })
       .catch(handleError)
       .finally(() => setLoading(false))
-  }, [])
+  }, [handleError])
 
   const movementRows = useMemo(() => {
     if (!stats) return []
@@ -283,9 +282,12 @@ export default function Dashboard() {
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     {product.image_url ? (
-                      <img
+                      <Image
                         src={product.image_url}
                         alt={product.name}
+                        width={48}
+                        height={48}
+                        unoptimized
                         referrerPolicy="no-referrer"
                         className="size-12 shrink-0 rounded-xl bg-white object-contain p-1"
                       />

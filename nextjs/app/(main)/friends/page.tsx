@@ -144,7 +144,7 @@ export default function FriendsPage() {
   const loadFriends = useCallback(async () => {
     try {
       const res = await api.get<SimpleUser[]>("/friends")
-      const data = (res as any).data ?? []
+      const data = res.data ?? []
       setFriends(Array.isArray(data) ? data : [])
     } catch {}
   }, [])
@@ -152,7 +152,7 @@ export default function FriendsPage() {
   const loadRequests = useCallback(async () => {
     try {
       const res = await api.get<SimpleUser[]>("/friends/requests")
-      const data = (res as any).data ?? []
+      const data = res.data ?? []
       setRequests(Array.isArray(data) ? data : [])
     } catch {}
   }, [])
@@ -162,7 +162,7 @@ export default function FriendsPage() {
     try {
       const endpoint = q ? `/users?search=${encodeURIComponent(q)}` : `/users`
       const res = await api.get<DiscoverUser[]>(endpoint)
-      const data = (res as any).data ?? []
+      const data = res.data ?? []
       setDiscoverUsers(Array.isArray(data) ? data : [])
     } catch {
     } finally {
@@ -181,26 +181,33 @@ export default function FriendsPage() {
     }
   }, [query, loadDiscover])
 
-  useEffect(() => {
-    loadFriends()
-    loadRequests()
-    loadUnreadCounts()
-  }, [loadFriends, loadRequests])
-
-  async function loadUnreadCounts() {
+  const loadUnreadCounts = useCallback(async () => {
     try {
       const res = await api.get<Record<number, number>>(
         "/messages/unread-counts"
       )
-      const data = (res as any).data ?? {}
-      setUnreadCounts(data)
-    } catch (e) {}
-  }
+      setUnreadCounts(res.data ?? {})
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      loadFriends()
+      loadRequests()
+      loadUnreadCounts()
+    }, 0)
+
+    return () => window.clearTimeout(timeout)
+  }, [loadFriends, loadRequests, loadUnreadCounts])
 
   function setPending(id: number, on: boolean) {
     setPendingIds((prev) => {
       const next = new Set(prev)
-      on ? next.add(id) : next.delete(id)
+      if (on) {
+        next.add(id)
+      } else {
+        next.delete(id)
+      }
       return next
     })
   }
@@ -244,8 +251,11 @@ export default function FriendsPage() {
           break
       }
       await Promise.all([loadDiscover(query), loadFriends(), loadRequests()])
-    } catch (e: any) {
-      notify({ type: "error", message: e?.message ?? "Something went wrong" })
+    } catch (e: unknown) {
+      notify({
+        type: "error",
+        message: e instanceof Error ? e.message : "Something went wrong",
+      })
     } finally {
       setPending(userId, false)
     }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import {
   ShieldUser,
   ShieldCheck,
@@ -63,6 +63,75 @@ function EmptyState({
   )
 }
 
+function UserDetailsContent({
+  target,
+  mobile = false,
+  currentUserId,
+  onPromote,
+  onDelete,
+}: {
+  target: AdminUser
+  mobile?: boolean
+  currentUserId?: number
+  onPromote: (target: AdminUser) => void
+  onDelete: (target: AdminUser) => void
+}) {
+  return (
+    <div className="flex h-full flex-col">
+      <div className="mb-5">
+        <h2 className="text-lg font-semibold">{target.name}</h2>
+        <p className="text-sm text-muted-foreground">{target.email}</p>
+      </div>
+
+      <div className="space-y-3 text-sm">
+        <div className="rounded-2xl bg-muted/40 p-3">
+          <p className="text-xs text-muted-foreground">Role</p>
+          <p className="font-medium">{target.is_admin ? "Admin" : "User"}</p>
+        </div>
+        <div className="rounded-2xl bg-muted/40 p-3">
+          <p className="text-xs text-muted-foreground">Visibility</p>
+          <p className="font-medium">
+            {target.private_account ? "Private" : "Public"}
+          </p>
+        </div>
+        <div className="rounded-2xl bg-muted/40 p-3">
+          <p className="text-xs text-muted-foreground">Email verified</p>
+          <p className="font-medium">
+            {target.email_verified_at ? "Yes" : "No"}
+          </p>
+        </div>
+        <div className="rounded-2xl bg-muted/40 p-3">
+          <p className="text-xs text-muted-foreground">Created</p>
+          <p className="font-medium">{formatDateTime(target.created_at)}</p>
+        </div>
+      </div>
+
+      <div className={mobile ? "mt-5 space-y-2" : "mt-auto space-y-2 pt-5"}>
+        {!target.is_admin && (
+          <Button
+            variant="default"
+            className="w-full gap-2"
+            disabled={target.id === currentUserId}
+            onClick={() => onPromote(target)}
+          >
+            <ShieldCheck className="size-4" />
+            Make admin
+          </Button>
+        )}
+        <Button
+          variant="destructive"
+          className="w-full gap-2"
+          disabled={target.id === currentUserId}
+          onClick={() => onDelete(target)}
+        >
+          <Trash2 className="size-4" />
+          Delete account
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 export default function UsersPage() {
   const { user } = useUser()
   const { notify } = useNotification()
@@ -81,7 +150,11 @@ export default function UsersPage() {
   const [promoteTarget, setPromoteTarget] = useState<AdminUser | null>(null)
   const [promoting, setPromoting] = useState(false)
 
-  async function loadUsers(search = "", targetPage = page, targetPerPage = perPage) {
+  const loadUsers = useCallback(async (
+    search = "",
+    targetPage = page,
+    targetPerPage = perPage
+  ) => {
     setLoading(true)
     try {
       const params = new URLSearchParams({
@@ -105,20 +178,12 @@ export default function UsersPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [notify, page, perPage])
 
   useEffect(() => {
     const timer = setTimeout(() => loadUsers(query.trim(), page, perPage), 250)
     return () => clearTimeout(timer)
-  }, [query, page, perPage])
-
-  useEffect(() => {
-    if (selectedUser) {
-      setDetailsUser(selectedUser)
-      setDetailsClosing(false)
-    }
-  }, [selectedUser])
-
+  }, [loadUsers, query, page, perPage])
 
   async function handleDeleteUser() {
     if (!deleteTarget) return
@@ -189,69 +254,10 @@ export default function UsersPage() {
     }, 300)
   }
 
-  function UserDetailsContent({
-    target,
-    mobile = false,
-  }: {
-    target: AdminUser
-    mobile?: boolean
-  }) {
-    return (
-      <div className="flex h-full flex-col">
-        <div className="mb-5">
-          <h2 className="text-lg font-semibold">{target.name}</h2>
-          <p className="text-sm text-muted-foreground">{target.email}</p>
-        </div>
-
-        <div className="space-y-3 text-sm">
-          <div className="rounded-2xl bg-muted/40 p-3">
-            <p className="text-xs text-muted-foreground">Role</p>
-            <p className="font-medium">{target.is_admin ? "Admin" : "User"}</p>
-          </div>
-          <div className="rounded-2xl bg-muted/40 p-3">
-            <p className="text-xs text-muted-foreground">Visibility</p>
-            <p className="font-medium">
-              {target.private_account ? "Private" : "Public"}
-            </p>
-          </div>
-          <div className="rounded-2xl bg-muted/40 p-3">
-            <p className="text-xs text-muted-foreground">Email verified</p>
-            <p className="font-medium">
-              {target.email_verified_at ? "Yes" : "No"}
-            </p>
-          </div>
-          <div className="rounded-2xl bg-muted/40 p-3">
-            <p className="text-xs text-muted-foreground">Created</p>
-            <p className="font-medium">
-              {formatDateTime(target.created_at)}
-            </p>
-          </div>
-        </div>
-
-        <div className={mobile ? "mt-5 space-y-2" : "mt-auto space-y-2 pt-5"}>
-          {!target.is_admin && (
-            <Button
-              variant="default"
-              className="w-full gap-2"
-              disabled={target.id === user?.id}
-              onClick={() => setPromoteTarget(target)}
-            >
-              <ShieldCheck className="size-4" />
-              Make admin
-            </Button>
-          )}
-          <Button
-            variant="destructive"
-            className="w-full gap-2"
-            disabled={target.id === user?.id}
-            onClick={() => setDeleteTarget(target)}
-          >
-            <Trash2 className="size-4" />
-            Delete account
-          </Button>
-        </div>
-      </div>
-    )
+  function selectUser(target: AdminUser) {
+    setSelectedUser(target)
+    setDetailsUser(target)
+    setDetailsClosing(false)
   }
 
   if (user && !user.is_admin) {
@@ -330,7 +336,7 @@ export default function UsersPage() {
               : users.map((item, i) => (
                   <button
                     key={item.id}
-                    onClick={() => setSelectedUser(item)}
+                    onClick={() => selectUser(item)}
                     className={`flex w-full animate-in items-center justify-between rounded-2xl border bg-muted/35 p-4 text-left transition-colors duration-300 fill-mode-both fade-in slide-in-from-bottom-3 dark:border-white/5 dark:bg-muted/55 ${
                       selectedUser?.id === item.id
                         ? "border-primary bg-primary/5 dark:bg-primary/10"
@@ -375,7 +381,12 @@ export default function UsersPage() {
               >
                 <X className="size-4" />
               </button>
-              <UserDetailsContent target={detailsUser} />
+              <UserDetailsContent
+                target={detailsUser}
+                currentUserId={user?.id}
+                onPromote={setPromoteTarget}
+                onDelete={setDeleteTarget}
+              />
             </div>
           </div>
         )}
@@ -511,7 +522,13 @@ export default function UsersPage() {
                 <X className="size-4" />
               </button>
             </div>
-            <UserDetailsContent target={selectedUser} mobile />
+            <UserDetailsContent
+              target={selectedUser}
+              mobile
+              currentUserId={user?.id}
+              onPromote={setPromoteTarget}
+              onDelete={setDeleteTarget}
+            />
           </div>
         </div>
       )}

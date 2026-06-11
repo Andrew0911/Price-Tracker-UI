@@ -1,25 +1,25 @@
 "use client"
 
 import { useTheme } from "next-themes"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { Moon, Sun } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 
+const subscribe = () => () => {}
+const getClientSnapshot = () => true
+const getServerSnapshot = () => false
+
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  const [checked, setChecked] = useState(false)
+  const mounted = useSyncExternalStore(
+    subscribe,
+    getClientSnapshot,
+    getServerSnapshot
+  )
+  const [optimisticChecked, setOptimisticChecked] = useState<boolean | null>(
+    null
+  )
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    if (mounted) {
-      setChecked(resolvedTheme === "dark")
-    }
-  }, [mounted, resolvedTheme])
 
   useEffect(() => {
     return () => {
@@ -31,8 +31,10 @@ export function ThemeToggle() {
 
   if (!mounted) return null
 
+  const checked = optimisticChecked ?? resolvedTheme === "dark"
+
   const handleToggle = (nextChecked: boolean) => {
-    setChecked(nextChecked)
+    setOptimisticChecked(nextChecked)
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
@@ -40,6 +42,7 @@ export function ThemeToggle() {
 
     timeoutRef.current = setTimeout(() => {
       setTheme(nextChecked ? "dark" : "light")
+      setOptimisticChecked(null)
     }, 180)
   }
 

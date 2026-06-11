@@ -153,7 +153,7 @@ export default function ProductDetail() {
         router.push("/wishlist")
       })
       .finally(() => setLoading(false))
-  }, [id])
+  }, [handleError, id, router])
 
   async function handleSaveAlert() {
     if (!alertPrice || !product || !canManageWishlistProduct) return

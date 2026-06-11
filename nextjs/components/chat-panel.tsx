@@ -12,7 +12,6 @@ import {
   MessageCircle,
   ChevronLeft,
   BookmarkPlus,
-  BookmarkCheck,
 } from "lucide-react"
 import { api } from "@/lib/api"
 import { useNotification } from "@/components/notification"
@@ -25,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { getAvatarGradient, getInitials, formatDateTime } from "@/lib/utils"
+import { getAvatarGradient, getInitials } from "@/lib/utils"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -69,6 +68,27 @@ function formatTime(iso: string) {
     minute: "2-digit",
     hour12: false,
   })
+}
+
+function getApiErrorMessage(err: unknown) {
+  if (err instanceof Error) return err.message
+  if (err && typeof err === "object" && "message" in err) {
+    const message = (err as { message?: unknown }).message
+    return typeof message === "string" ? message : ""
+  }
+  return ""
+}
+
+function hasApiErrorText(err: unknown, text: string) {
+  const needle = text.toLowerCase()
+  const message = getApiErrorMessage(err).toLowerCase()
+  if (message.includes(needle)) return true
+
+  if (!err || typeof err !== "object" || !("errors" in err)) return false
+  const errors = (err as { errors?: Record<string, string[]> }).errors
+  return Object.values(errors ?? {}).some((items) =>
+    items.some((item) => item.toLowerCase().includes(needle))
+  )
 }
 
 function formatDate(iso: string) {
@@ -118,9 +138,9 @@ function SharedProductCard({
         type: "success",
         message: "Product added to wishlist",
       })
-    } catch (err: any) {
-      const msg: string = err?.message ?? ""
-      if (msg.toLowerCase().includes("already")) {
+    } catch (err: unknown) {
+      const msg = getApiErrorMessage(err)
+      if (hasApiErrorText(err, "already")) {
         setAddState("added")
         notify({
           type: "info",
@@ -139,9 +159,12 @@ function SharedProductCard({
   return (
     <div className="mt-2 flex items-center gap-3 rounded-2xl border border-foreground/10 bg-background/60 p-3">
       {product.image_url ? (
-        <img
+        <Image
           src={product.image_url}
           alt={product.name}
+          width={48}
+          height={48}
+          unoptimized
           referrerPolicy="no-referrer"
           className="size-12 shrink-0 rounded-xl object-contain"
         />
@@ -190,11 +213,7 @@ function SharedProductCard({
                 rel="noopener noreferrer"
                 className="shrink-0 rounded-xl p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
-                {addState === "added" ? (
-                  <BookmarkCheck className="size-4 text-primary" />
-                ) : (
-                  <ExternalLink className="size-4" />
-                )}
+                <ExternalLink className="size-4" />
               </Link>
             </TooltipTrigger>
             <TooltipContent>View product</TooltipContent>
@@ -285,9 +304,12 @@ function ProductPicker({
               style={{ animationDelay: `${i * 45}ms` }}
             >
               {p.image_url ? (
-                <img
+                <Image
                   src={p.image_url}
                   alt={p.name}
+                  width={44}
+                  height={44}
+                  unoptimized
                   referrerPolicy="no-referrer"
                   className="size-11 shrink-0 rounded-xl object-contain"
                 />
@@ -340,19 +362,23 @@ export function ChatPanel({ friend, onClose }: ChatPanelProps) {
 
   // Initial load
   useEffect(() => {
-    setLoading(true)
-    setMessages([])
-    lastIdRef.current = 0
+    const timeout = window.setTimeout(() => {
+      setLoading(true)
+      setMessages([])
+      lastIdRef.current = 0
 
-    api
-      .get<never>(`/messages/${friend.id}?limit=50`)
-      .then((res) => {
-        const data = ((res as any).data ?? []) as Message[]
-        setMessages(data)
-        if (data.length > 0) lastIdRef.current = data[data.length - 1].id
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+      api
+        .get<Message[]>(`/messages/${friend.id}?limit=50`)
+        .then((res) => {
+          const data = res.data ?? []
+          setMessages(data)
+          if (data.length > 0) lastIdRef.current = data[data.length - 1].id
+        })
+        .catch(() => {})
+        .finally(() => setLoading(false))
+    }, 0)
+
+    return () => window.clearTimeout(timeout)
   }, [friend.id])
 
   // Scroll to bottom on new messages
@@ -371,10 +397,10 @@ export function ChatPanel({ friend, onClose }: ChatPanelProps) {
       if (isPollRunningRef.current) return
       isPollRunningRef.current = true
       try {
-        const res = await api.get<never>(
+        const res = await api.get<Message[]>(
           `/messages/${friend.id}?after_id=${lastIdRef.current}&limit=50`
         )
-        const fresh = ((res as any).data ?? []) as Message[]
+        const fresh = res.data ?? []
         if (fresh.length > 0) {
           lastIdRef.current = fresh[fresh.length - 1].id
           setMessages((prev) => [...prev, ...fresh])
@@ -398,9 +424,10 @@ export function ChatPanel({ friend, onClose }: ChatPanelProps) {
       if (body.trim()) payload.body = body.trim()
       if (pendingProduct) payload.product_id = pendingProduct.id
 
-      const res = await api.post<never>(`/messages/${friend.id}`, payload)
-      const msg = (res as any).data as Message
+      const res = await api.post<Message>(`/messages/${friend.id}`, payload)
+      const msg = res.data
 
+      if (!msg) return
       lastIdRef.current = msg.id
       setMessages((prev) => [...prev, msg])
       setBody("")
@@ -549,9 +576,12 @@ export function ChatPanel({ friend, onClose }: ChatPanelProps) {
             <div className="shrink-0 border-t border-foreground/10 px-4 py-2">
               <div className="flex items-center gap-2 rounded-2xl bg-primary/10 px-3 py-2 ring-1 ring-primary/20">
                 {pendingProduct.image_url ? (
-                  <img
+                  <Image
                     src={pendingProduct.image_url}
                     alt={pendingProduct.name}
+                    width={36}
+                    height={36}
+                    unoptimized
                     referrerPolicy="no-referrer"
                     className="size-9 shrink-0 rounded-lg object-contain"
                   />

@@ -181,19 +181,23 @@ export default function Wishlist() {
   }
 
   useEffect(() => {
-    setLoading(true)
-    api
-      .get<never>(
-        `/products?page=${page}&perPage=${perPage}${debouncedSearch ? `&search=${encodeURIComponent(debouncedSearch)}` : ""}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}${activeStatus !== null ? `&status=${activeStatus}` : ""}`
-      )
-      .then((res) => {
-        const r = res as unknown as ProductsResponse
-        setProducts(r.data ?? [])
-        setLastPage(r.lastPage ?? 1)
-        setTotal(r.total ?? 0)
-      })
-      .catch(handleError)
-      .finally(() => setLoading(false))
+    const timeout = window.setTimeout(() => {
+      setLoading(true)
+      api
+        .get<never>(
+          `/products?page=${page}&perPage=${perPage}${debouncedSearch ? `&search=${encodeURIComponent(debouncedSearch)}` : ""}${activeAddedAfter ? `&added_after=${activeAddedAfter}` : ""}${activeStore ? `&store=${activeStore}` : ""}${activeStatus !== null ? `&status=${activeStatus}` : ""}`
+        )
+        .then((res) => {
+          const r = res as unknown as ProductsResponse
+          setProducts(r.data ?? [])
+          setLastPage(r.lastPage ?? 1)
+          setTotal(r.total ?? 0)
+        })
+        .catch(handleError)
+        .finally(() => setLoading(false))
+    }, 0)
+
+    return () => window.clearTimeout(timeout)
   }, [
     page,
     perPage,
@@ -201,25 +205,28 @@ export default function Wishlist() {
     activeStore,
     activeStatus,
     debouncedSearch,
+    handleError,
   ])
 
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setSuggestions([])
-      return
-    }
-    const t = setTimeout(() => {
+    const trimmedSearch = searchQuery.trim()
+    const t = window.setTimeout(() => {
+      if (!trimmedSearch) {
+        setSuggestions([])
+        return
+      }
+
       api
         .get<never>(
-          `/products?page=1&perPage=5&search=${encodeURIComponent(searchQuery.trim())}`
+          `/products?page=1&perPage=5&search=${encodeURIComponent(trimmedSearch)}`
         )
         .then((res) => {
           const r = res as unknown as ProductsResponse
           setSuggestions(r.data ?? [])
         })
         .catch(() => {})
-    }, 250)
-    return () => clearTimeout(t)
+    }, trimmedSearch ? 250 : 0)
+    return () => window.clearTimeout(t)
   }, [searchQuery])
 
   useEffect(() => {
@@ -310,9 +317,12 @@ export default function Wishlist() {
                       style={{ animationDelay: `${i * 40}ms` }}
                     >
                       {product.image_url ? (
-                        <img
+                        <Image
                           src={product.image_url}
                           alt={product.name}
+                          width={36}
+                          height={36}
+                          unoptimized
                           referrerPolicy="no-referrer"
                           className="size-9 shrink-0 rounded-lg object-contain"
                         />

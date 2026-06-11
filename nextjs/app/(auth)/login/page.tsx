@@ -1,6 +1,7 @@
 "use client"
 
 import { Suspense, useState } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -63,10 +64,12 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="relative flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-              <img
+              <Image
                 src="/images/price-pulse-logo.png"
                 alt="PricePulse"
-                className="size-10 object-contain"
+                width={40}
+                height={40}
+                className="object-contain"
               />
             </div>
             <span className="text-lg font-semibold tracking-tight">
@@ -118,10 +121,12 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="mb-8 flex items-center gap-2 lg:hidden">
             <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <img
+              <Image
                 src="/images/price-pulse-logo.png"
                 alt="PricePulse"
-                className="size-10 object-contain"
+                width={40}
+                height={40}
+                className="object-contain"
               />
             </div>
             <span className="text-base font-semibold">Price Pulse</span>

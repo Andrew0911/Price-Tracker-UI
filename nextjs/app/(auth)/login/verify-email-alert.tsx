@@ -32,7 +32,7 @@ export function VerifyEmailAlert() {
           "Invalid verification link. This link is invalid or has already been used.",
       })
     }
-  }, [])
+  }, [notify])
 
   return null
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, TriangleAlert, Settings, Eye, EyeOff } from "lucide-react"
 import { api, clearAuthToken } from "@/lib/api"
@@ -19,20 +19,17 @@ export default function AccountSettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deletePassword, setDeletePassword] = useState("")
   const [showDeletePassword, setShowDeletePassword] = useState(false)
-  const [deleteError, setDeleteError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
-  const [privateAccount, setPrivateAccount] = useState(true)
+  const [privateAccountOverride, setPrivateAccountOverride] = useState<
+    boolean | null
+  >(null)
   const [savingPrivacy, setSavingPrivacy] = useState(false)
 
-  useEffect(() => {
-    if (user) {
-      setPrivateAccount(user.private_account)
-    }
-  }, [user])
+  const privateAccount = privateAccountOverride ?? user?.private_account ?? true
 
   async function handlePrivacyChange(checked: boolean) {
     const previousValue = privateAccount
-    setPrivateAccount(checked)
+    setPrivateAccountOverride(checked)
     setSavingPrivacy(true)
 
     try {
@@ -48,8 +45,9 @@ export default function AccountSettingsPage() {
           ? "Your account is now private"
           : "Your account is now public",
       })
+      setPrivateAccountOverride(null)
     } catch (err: unknown) {
-      setPrivateAccount(previousValue)
+      setPrivateAccountOverride(previousValue)
       const apiErr = err as { message?: string }
       notify({
         type: "error",
@@ -61,7 +59,6 @@ export default function AccountSettingsPage() {
   }
 
   async function handleDeleteAccount() {
-    setDeleteError(null)
     setDeleting(true)
     try {
       await api.delete("/account", { body: { password: deletePassword } })
@@ -77,7 +74,6 @@ export default function AccountSettingsPage() {
         apiErr?.errors?.password?.[0] ??
         apiErr?.message ??
         "Something went wrong."
-      setDeleteError(msg)
       notify({
         type: "error",
         message: msg,
@@ -88,7 +84,7 @@ export default function AccountSettingsPage() {
   }
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto">
+    <div className="no-scrollbar flex h-full flex-col overflow-y-auto">
       <div className="relative mb-3 shrink-0 overflow-hidden px-4 pt-4 pb-4 md:px-6 md:pt-6 md:pb-5">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/3 to-transparent" />
         <div className="pointer-events-none absolute -top-10 -right-10 size-48 rounded-full bg-primary/8 blur-3xl" />
@@ -216,7 +212,6 @@ export default function AccountSettingsPage() {
                       value={deletePassword}
                       onChange={(e) => {
                         setDeletePassword(e.target.value)
-                        setDeleteError(null)
                       }}
                       className="h-10 rounded-xl pr-10 text-base md:text-sm"
                       autoFocus
@@ -244,7 +239,6 @@ export default function AccountSettingsPage() {
                     onClick={() => {
                       setShowDeleteConfirm(false)
                       setDeletePassword("")
-                      setDeleteError(null)
                       setShowDeletePassword(false)
                     }}
                   >

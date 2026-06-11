@@ -58,8 +58,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (_cachedUser !== null) {
-      setUser(_cachedUser)
-      setLoading(false)
       return
     }
     fetchUser().then((u) => {
