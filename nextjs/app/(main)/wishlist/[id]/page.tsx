@@ -703,26 +703,21 @@ export default function ProductDetail() {
                   </div>
 
                   {targetAlert ? (
-                    <div className="flex items-center justify-between gap-3 rounded-2xl bg-chart-3/8 px-3.5 py-2.5 ring-1 ring-chart-3/15 md:hidden">
-                      <div className="min-w-0 rounded-full bg-chart-3/10 px-3 py-1.5 font-semibold whitespace-nowrap text-chart-3">
-                        <span className="mr-1.5 text-sm font-medium text-chart-3/75">
-                          Current target:
-                        </span>
-                        <span className="text-sm">
-                          {targetAlert.target_price} {product.currency}
-                        </span>
+                    <div className="flex items-center justify-between gap-2.5 rounded-2xl bg-chart-3/8 px-3 py-2.5 ring-1 ring-chart-3/15 md:hidden">
+                      <div className="min-w-0 rounded-full bg-chart-3/10 px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap text-chart-3">
+                        {targetAlert.target_price} {product.currency}
                       </div>
                       <Button
                         variant="destructive"
                         size="sm"
-                        className="h-8 shrink-0 gap-1.5 rounded-xl px-2.5 text-sm font-semibold"
+                        className="h-8 shrink-0 gap-1.5 rounded-xl px-2.5 text-xs font-semibold"
                         onClick={handleDeleteAlert}
                         disabled={deletingAlert || !canManageWishlistProduct}
                       >
                         {deletingAlert ? (
-                          <Loader2 className="size-3.5 animate-spin" />
+                          <Loader2 className="size-3 animate-spin" />
                         ) : (
-                          <BellOff className="size-3.5" />
+                          <BellOff className="size-3" />
                         )}
                         Remove
                       </Button>
@@ -839,10 +834,7 @@ export default function ProductDetail() {
                 disabled={deletingProduct}
                 className="min-w-0 justify-center gap-2 whitespace-nowrap"
               >
-                {deletingProduct && (
-                  <Loader2 className="size-4 shrink-0 animate-spin" />
-                )}
-                {deletingProduct ? "Removing..." : "Remove"}
+                Remove
               </Button>
             </div>
           </div>

@@ -42,7 +42,6 @@ import {
   ShieldUser,
   PackageSearch,
   PanelLeft,
-  Loader2,
 } from "lucide-react"
 import { api, clearAuthToken } from "@/lib/api"
 import { useNotification } from "@/components/notification"
@@ -332,10 +331,7 @@ export function AppSidebar() {
                 onClick={handleLogout}
                 className="min-w-0 justify-center gap-2 whitespace-nowrap"
               >
-                {loggingOut && (
-                  <Loader2 className="size-4 shrink-0 animate-spin" />
-                )}
-                {loggingOut ? "Logging out..." : "Logout"}
+                Logout
               </Button>
             </div>
           </div>

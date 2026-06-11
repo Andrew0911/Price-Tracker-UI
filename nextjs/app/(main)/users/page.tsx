@@ -7,7 +7,6 @@ import {
   Search,
   Trash2,
   X,
-  Loader2,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
@@ -574,8 +573,7 @@ export default function UsersPage() {
                 disabled={deleting}
                 className="min-w-0 justify-center gap-2 whitespace-nowrap"
               >
-                {deleting && <Loader2 className="size-4 shrink-0 animate-spin" />}
-                {deleting ? "Deleting..." : "Delete"}
+                Delete
               </Button>
             </div>
           </div>
@@ -623,10 +621,7 @@ export default function UsersPage() {
                 disabled={promoting}
                 className="min-w-0 justify-center gap-2 whitespace-nowrap"
               >
-                {promoting && (
-                  <Loader2 className="size-4 shrink-0 animate-spin" />
-                )}
-                {promoting ? "Promoting..." : "Make admin"}
+                Make admin
               </Button>
             </div>
           </div>

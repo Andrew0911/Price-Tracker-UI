@@ -11,7 +11,6 @@ import {
   Users,
   UserCheck,
   Sparkles,
-  Loader2,
   MessageCircle,
   Info,
   Ban,
@@ -686,10 +685,7 @@ export default function FriendsPage() {
                 }}
                 className="min-w-0 justify-center gap-2 whitespace-nowrap"
               >
-                {pendingIds.has(removeTarget.id) && (
-                  <Loader2 className="size-4 shrink-0 animate-spin" />
-                )}
-                {pendingIds.has(removeTarget.id) ? "Removing..." : "Remove"}
+                Remove
               </Button>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Loader2, TriangleAlert, Settings, Eye, EyeOff } from "lucide-react"
+import { TriangleAlert, Settings, Eye, EyeOff } from "lucide-react"
 import { api, clearAuthToken } from "@/lib/api"
 import { clearUserCache, useUser } from "@/lib/user-context"
 import { useNotification } from "@/components/notification"
@@ -252,9 +252,6 @@ export default function AccountSettingsPage() {
                     onClick={handleDeleteAccount}
                     className="min-w-0 flex-1 justify-center gap-2 whitespace-nowrap text-xs sm:flex-none sm:text-sm"
                   >
-                    {deleting && (
-                      <Loader2 className="size-3.5 shrink-0 animate-spin" />
-                    )}
                     Yes, delete my account
                   </Button>
                 </div>
